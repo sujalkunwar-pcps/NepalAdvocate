@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { User, Scale } from 'lucide-react-native';
-import { Colors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 
 interface RoleSelectorProps {
@@ -13,6 +13,7 @@ export const RoleSelector: React.FC<RoleSelectorProps> = ({
   selectedRole,
   onSelectRole,
 }) => {
+  const { theme } = useTheme();
   const { t } = useAuth();
 
   const isClient = selectedRole === 'CLIENT';
@@ -20,19 +21,26 @@ export const RoleSelector: React.FC<RoleSelectorProps> = ({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{t.iAmA}</Text>
-      <View style={styles.tabsContainer}>
+      <Text style={[styles.label, { color: theme.textSecondary }]}>{t.iAmA}</Text>
+      <View style={[styles.tabsContainer, { backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }]}>
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => onSelectRole('CLIENT')}
-          style={[styles.tab, isClient && styles.activeClientTab]}
+          style={[
+            styles.tab,
+            isClient && {
+              backgroundColor: theme.roleBadgeClientBg,
+              borderColor: theme.roleBadgeClientText,
+              borderWidth: 1,
+            },
+          ]}
         >
           <User
-            size={18}
-            color={isClient ? Colors.clientRole : Colors.textMuted}
+            size={16}
+            color={isClient ? theme.roleBadgeClientText : theme.textMuted}
             style={styles.icon}
           />
-          <Text style={[styles.tabText, isClient && styles.activeClientText]}>
+          <Text style={[styles.tabText, { color: isClient ? theme.roleBadgeClientText : theme.textMuted }]}>
             {t.client}
           </Text>
         </TouchableOpacity>
@@ -40,14 +48,21 @@ export const RoleSelector: React.FC<RoleSelectorProps> = ({
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => onSelectRole('LAWYER')}
-          style={[styles.tab, isLawyer && styles.activeLawyerTab]}
+          style={[
+            styles.tab,
+            isLawyer && {
+              backgroundColor: theme.roleBadgeLawyerBg,
+              borderColor: theme.roleBadgeLawyerText,
+              borderWidth: 1,
+            },
+          ]}
         >
           <Scale
-            size={18}
-            color={isLawyer ? Colors.lawyerRole : Colors.textMuted}
+            size={16}
+            color={isLawyer ? theme.roleBadgeLawyerText : theme.textMuted}
             style={styles.icon}
           />
-          <Text style={[styles.tabText, isLawyer && styles.activeLawyerText]}>
+          <Text style={[styles.tabText, { color: isLawyer ? theme.roleBadgeLawyerText : theme.textMuted }]}>
             {t.lawyer}
           </Text>
         </TouchableOpacity>
@@ -61,52 +76,31 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    color: Colors.textSecondary,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
     marginBottom: 8,
-    letterSpacing: 0.3,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
   },
   tabsContainer: {
     flexDirection: 'row',
-    backgroundColor: Colors.inputBackground,
-    borderRadius: 14,
-    padding: 4,
+    borderRadius: 12,
+    padding: 3,
     borderWidth: 1,
-    borderColor: Colors.inputBorder,
   },
   tab: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    borderRadius: 10,
-  },
-  activeClientTab: {
-    backgroundColor: 'rgba(56, 189, 248, 0.15)',
-    borderWidth: 1,
-    borderColor: Colors.clientRole,
-  },
-  activeLawyerTab: {
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
-    borderWidth: 1,
-    borderColor: Colors.lawyerRole,
+    paddingVertical: 10,
+    borderRadius: 9,
   },
   icon: {
     marginRight: 6,
   },
   tabText: {
-    color: Colors.textMuted,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
-  },
-  activeClientText: {
-    color: Colors.clientRole,
-    fontWeight: '700',
-  },
-  activeLawyerText: {
-    color: Colors.lawyerRole,
-    fontWeight: '700',
   },
 });

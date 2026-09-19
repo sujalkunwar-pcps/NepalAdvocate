@@ -1,60 +1,60 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Scale, LogOut, User as UserIcon, Shield, Calendar, MessageSquare, FileText, Sparkles } from 'lucide-react-native';
-import { Colors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { LanguageToggle } from '../components/LanguageToggle';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 export const DashboardScreen: React.FC = () => {
+  const { theme } = useTheme();
   const { user, logout, t } = useAuth();
 
   const isLawyer = user?.role === 'LAWYER';
 
   return (
-    <LinearGradient colors={Colors.backgroundGradient} style={styles.gradientContainer}>
-      <ScrollView contentContainerStyle={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header Bar */}
         <View style={styles.headerBar}>
           <View style={styles.brandRow}>
-            <Scale size={24} color={Colors.primary} />
-            <Text style={styles.brandTitle}>{t.appName}</Text>
+            <Scale size={24} color={theme.accent} />
+            <Text style={[styles.brandTitle, { color: theme.textPrimary }]}>{t.appName}</Text>
           </View>
           <View style={styles.headerRight}>
+            <ThemeToggle />
             <LanguageToggle />
-            <TouchableOpacity onPress={logout} style={styles.logoutButton}>
-              <LogOut size={18} color={Colors.error} />
+            <TouchableOpacity onPress={logout} style={[styles.logoutButton, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
+              <LogOut size={16} color={theme.error} />
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Welcome Card */}
-        <View style={styles.userCard}>
-          <View style={styles.userAvatar}>
-            <UserIcon size={32} color={Colors.primary} />
+        <View style={[styles.userCard, { backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }]}>
+          <View style={[styles.userAvatar, { backgroundColor: theme.toggleBg }]}>
+            <UserIcon size={28} color={theme.accent} />
           </View>
           <View style={styles.userInfo}>
-            <Text style={styles.greeting}>{t.welcomeUser},</Text>
-            <Text style={styles.userName}>
+            <Text style={[styles.greeting, { color: theme.textSecondary }]}>{t.welcomeUser},</Text>
+            <Text style={[styles.userName, { color: theme.textPrimary }]}>
               {user ? `${user.firstName} ${user.lastName}` : 'Guest User'}
             </Text>
-            <Text style={styles.userEmail}>{user?.email}</Text>
+            <Text style={[styles.userEmail, { color: theme.textMuted }]}>{user?.email}</Text>
           </View>
           <View
             style={[
               styles.roleBadge,
               {
-                backgroundColor: isLawyer
-                  ? 'rgba(245, 158, 11, 0.15)'
-                  : 'rgba(56, 189, 248, 0.15)',
-                borderColor: isLawyer ? Colors.lawyerRole : Colors.clientRole,
+                backgroundColor: isLawyer ? theme.roleBadgeLawyerBg : theme.roleBadgeClientBg,
+                borderColor: isLawyer ? theme.roleBadgeLawyerText : theme.roleBadgeClientText,
               },
             ]}
           >
             <Text
               style={[
                 styles.roleText,
-                { color: isLawyer ? Colors.lawyerRole : Colors.clientRole },
+                { color: isLawyer ? theme.roleBadgeLawyerText : theme.roleBadgeClientText },
               ]}
             >
               {isLawyer ? t.roleLawyer : t.roleClient}
@@ -63,59 +63,59 @@ export const DashboardScreen: React.FC = () => {
         </View>
 
         {/* Quick Legal Hub Grid */}
-        <Text style={styles.sectionTitle}>Legal Services Hub</Text>
+        <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>Legal Services Hub</Text>
 
         <View style={styles.grid}>
-          <View style={styles.gridCard}>
-            <View style={[styles.iconBox, { backgroundColor: 'rgba(56, 189, 248, 0.15)' }]}>
-              <Calendar size={24} color={Colors.accentCyan} />
+          <View style={[styles.gridCard, { backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }]}>
+            <View style={[styles.iconBox, { backgroundColor: theme.roleBadgeClientBg }]}>
+              <Calendar size={22} color={theme.roleBadgeClientText} />
             </View>
-            <Text style={styles.gridCardTitle}>Appointments</Text>
-            <Text style={styles.gridCardSub}>Schedule legal consultations</Text>
+            <Text style={[styles.gridCardTitle, { color: theme.textPrimary }]}>Appointments</Text>
+            <Text style={[styles.gridCardSub, { color: theme.textMuted }]}>Schedule legal consultations</Text>
           </View>
 
-          <View style={styles.gridCard}>
-            <View style={[styles.iconBox, { backgroundColor: 'rgba(245, 158, 11, 0.15)' }]}>
-              <Sparkles size={24} color={Colors.primary} />
+          <View style={[styles.gridCard, { backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }]}>
+            <View style={[styles.iconBox, { backgroundColor: theme.roleBadgeLawyerBg }]}>
+              <Sparkles size={22} color={theme.roleBadgeLawyerText} />
             </View>
-            <Text style={styles.gridCardTitle}>AI Legal Assistant</Text>
-            <Text style={styles.gridCardSub}>Instant legal guidance</Text>
+            <Text style={[styles.gridCardTitle, { color: theme.textPrimary }]}>AI Legal Assistant</Text>
+            <Text style={[styles.gridCardSub, { color: theme.textMuted }]}>Instant legal guidance</Text>
           </View>
 
-          <View style={styles.gridCard}>
-            <View style={[styles.iconBox, { backgroundColor: 'rgba(16, 185, 129, 0.15)' }]}>
-              <MessageSquare size={24} color={Colors.success} />
+          <View style={[styles.gridCard, { backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }]}>
+            <View style={[styles.iconBox, { backgroundColor: 'rgba(16, 185, 129, 0.12)' }]}>
+              <MessageSquare size={22} color={theme.success} />
             </View>
-            <Text style={styles.gridCardTitle}>Messages</Text>
-            <Text style={styles.gridCardSub}>Chat with verified lawyers</Text>
+            <Text style={[styles.gridCardTitle, { color: theme.textPrimary }]}>Messages</Text>
+            <Text style={[styles.gridCardSub, { color: theme.textMuted }]}>Chat with verified lawyers</Text>
           </View>
 
-          <View style={styles.gridCard}>
-            <View style={[styles.iconBox, { backgroundColor: 'rgba(168, 85, 247, 0.15)' }]}>
-              <FileText size={24} color="#A855F7" />
+          <View style={[styles.gridCard, { backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }]}>
+            <View style={[styles.iconBox, { backgroundColor: 'rgba(168, 85, 247, 0.12)' }]}>
+              <FileText size={22} color="#A855F7" />
             </View>
-            <Text style={styles.gridCardTitle}>Documents</Text>
-            <Text style={styles.gridCardSub}>Draft & review contracts</Text>
+            <Text style={[styles.gridCardTitle, { color: theme.textPrimary }]}>Documents</Text>
+            <Text style={[styles.gridCardSub, { color: theme.textMuted }]}>Draft & review contracts</Text>
           </View>
         </View>
 
         {/* Security Banner */}
-        <View style={styles.banner}>
-          <Shield size={20} color={Colors.primary} style={{ marginRight: 10 }} />
-          <Text style={styles.bannerText}>
+        <View style={[styles.banner, { backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }]}>
+          <Shield size={18} color={theme.accent} style={{ marginRight: 10 }} />
+          <Text style={[styles.bannerText, { color: theme.textSecondary }]}>
             Logged in securely to NepalAdvocate Legal Network
           </Text>
         </View>
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  gradientContainer: {
+  container: {
     flex: 1,
   },
-  container: {
+  scrollContent: {
     paddingHorizontal: 20,
     paddingTop: 54,
     paddingBottom: 30,
@@ -131,7 +131,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   brandTitle: {
-    color: Colors.textPrimary,
     fontSize: 20,
     fontWeight: '800',
     marginLeft: 8,
@@ -141,46 +140,43 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoutButton: {
-    marginLeft: 12,
-    padding: 8,
-    borderRadius: 12,
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    marginLeft: 8,
+    padding: 9,
+    borderRadius: 19,
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
+    borderColor: 'rgba(239, 68, 68, 0.2)',
   },
   userCard: {
-    backgroundColor: Colors.cardBackground,
-    borderRadius: 20,
-    padding: 18,
+    borderRadius: 18,
+    padding: 16,
     borderWidth: 1,
-    borderColor: Colors.cardBorder,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 22,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
   },
   userAvatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 14,
+    marginRight: 12,
   },
   userInfo: {
     flex: 1,
   },
   greeting: {
-    color: Colors.textSecondary,
     fontSize: 12,
   },
   userName: {
-    color: Colors.textPrimary,
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700',
   },
   userEmail: {
-    color: Colors.textMuted,
     fontSize: 12,
     marginTop: 2,
   },
@@ -195,8 +191,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   sectionTitle: {
-    color: Colors.textPrimary,
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700',
     marginBottom: 14,
   },
@@ -207,43 +202,36 @@ const styles = StyleSheet.create({
   },
   gridCard: {
     width: '48%',
-    backgroundColor: Colors.cardBackground,
-    borderRadius: 18,
+    borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: Colors.cardBorder,
     marginBottom: 14,
   },
   iconBox: {
-    width: 44,
-    height: 44,
+    width: 40,
+    height: 40,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
   },
   gridCardTitle: {
-    color: Colors.textPrimary,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
   },
   gridCardSub: {
-    color: Colors.textMuted,
     fontSize: 11,
     marginTop: 4,
   },
   banner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(245, 158, 11, 0.08)',
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.2)',
     marginTop: 10,
   },
   bannerText: {
-    color: Colors.textSecondary,
     fontSize: 12,
     flex: 1,
     fontWeight: '500',

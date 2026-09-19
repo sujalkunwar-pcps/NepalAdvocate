@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,9 +6,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInputProps,
+  Animated,
+  Platform,
 } from 'react-native';
 import { Eye, EyeOff } from 'lucide-react-native';
-import { Colors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 
 interface CustomInputProps extends TextInputProps {
   label: string;
@@ -27,37 +29,65 @@ export const CustomInput: React.FC<CustomInputProps> = ({
   placeholder,
   ...props
 }) => {
+  const { theme } = useTheme();
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(!isPassword);
 
-  const getBorderColor = () => {
-    if (error) return Colors.inputErrorBorder;
-    if (isFocused) return Colors.inputFocusedBorder;
-    return Colors.inputBorder;
-  };
+  const focusAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(focusAnim, {
+      toValue: isFocused ? 1 : 0,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+  }, [isFocused]);
+
+  const animatedBorderColor = focusAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [
+      error ? theme.inputErrorBorder : theme.inputBottomBorder,
+      error ? theme.inputErrorBorder : theme.inputFocusedBorder,
+    ],
+  });
+
+  const animatedIndicatorScale = focusAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0%', '100%'],
+  });
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
-      <View
+      <Text style={[styles.label, { color: isFocused ? theme.accent : theme.textSecondary }]}>
+        {label}
+      </Text>
+      
+      <Animated.View
         style={[
           styles.inputWrapper,
-          { borderColor: getBorderColor() },
-          isFocused && styles.focusedShadow,
+          {
+            borderBottomColor: animatedBorderColor,
+          },
         ]}
       >
         {icon && <View style={styles.iconContainer}>{icon}</View>}
+        
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            { color: theme.textPrimary },
+            Platform.OS === 'web' && ({ outlineStyle: 'none', outlineWidth: 0 } as any),
+          ]}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor={Colors.textMuted}
+          placeholderTextColor={theme.textMuted}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           secureTextEntry={isPassword && !showPassword}
           {...props}
         />
+
         {isPassword && (
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
@@ -65,62 +95,77 @@ export const CustomInput: React.FC<CustomInputProps> = ({
             activeOpacity={0.7}
           >
             {showPassword ? (
-              <EyeOff size={20} color={Colors.textSecondary} />
+              <EyeOff size={18} color={theme.textSecondary} />
             ) : (
-              <Eye size={20} color={Colors.textSecondary} />
+              <Eye size={18} color={theme.textSecondary} />
             )}
           </TouchableOpacity>
         )}
+      </Animated.View>
+
+      {/* Animated Underline Highlight Bar */}
+      <View style={styles.underlineTrack}>
+        <Animated.View
+          style={[
+            styles.underlineActive,
+            {
+              backgroundColor: error ? theme.inputErrorBorder : theme.inputFocusedBorder,
+              width: animatedIndicatorScale,
+            },
+          ]}
+        />
       </View>
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+      {error ? <Text style={[styles.errorText, { color: theme.inputErrorBorder }]}>{error}</Text> : null}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 18,
+    marginBottom: 22,
   },
   label: {
-    color: Colors.textSecondary,
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
-    marginBottom: 6,
-    letterSpacing: 0.3,
+    marginBottom: 4,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.inputBackground,
-    borderWidth: 1.5,
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    height: 52,
-  },
-  focusedShadow: {
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-    elevation: 3,
+    backgroundColor: 'transparent',
+    borderBottomWidth: 1.5,
+    paddingVertical: 8,
+    paddingHorizontal: 2,
+    height: 44,
   },
   iconContainer: {
     marginRight: 10,
   },
   input: {
     flex: 1,
-    color: Colors.textPrimary,
     fontSize: 15,
     height: '100%',
+    padding: 0,
   },
   eyeButton: {
     padding: 6,
   },
+  underlineTrack: {
+    height: 2,
+    width: '100%',
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+  },
+  underlineActive: {
+    height: 2,
+    borderRadius: 1,
+  },
   errorText: {
-    color: Colors.error,
     fontSize: 12,
     marginTop: 4,
-    marginLeft: 4,
     fontWeight: '500',
   },
 });

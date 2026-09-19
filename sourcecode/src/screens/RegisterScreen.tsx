@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,15 +7,16 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  Animated,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Mail, Lock, User as UserIcon, Phone, ShieldCheck, CheckSquare, Square, ArrowLeft } from 'lucide-react-native';
-import { Colors } from '../theme/colors';
+import { Mail, Lock, User as UserIcon, Phone, CheckSquare, Square, ArrowLeft } from 'lucide-react-native';
+import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { CustomInput } from '../components/CustomInput';
 import { CustomButton } from '../components/CustomButton';
 import { RoleSelector } from '../components/RoleSelector';
 import { LanguageToggle } from '../components/LanguageToggle';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { TimedDialog } from '../components/TimedDialog';
 
 interface RegisterScreenProps {
@@ -27,6 +28,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
   onNavigateToLogin,
   onRegisterSuccess,
 }) => {
+  const { theme } = useTheme();
   const { t, register, isLoading } = useAuth();
 
   const [role, setRole] = useState<'CLIENT' | 'LAWYER'>('CLIENT');
@@ -52,6 +54,25 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
   const [dialogType, setDialogType] = useState<'success' | 'error' | 'info'>('info');
+
+  // Animation
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(20)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   const validateForm = () => {
     let isValid = true;
@@ -141,7 +162,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
   };
 
   return (
-    <LinearGradient colors={Colors.backgroundGradient} style={styles.gradientContainer}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboardView}
@@ -151,23 +172,35 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Header Bar */}
+          {/* Header Controls */}
           <View style={styles.headerBar}>
-            <TouchableOpacity onPress={onNavigateToLogin} style={styles.backButton}>
-              <ArrowLeft size={20} color={Colors.primary} />
-              <Text style={styles.backText}>{t.login}</Text>
+            <TouchableOpacity onPress={onNavigateToLogin} style={[styles.backButton, { backgroundColor: theme.toggleBg, borderColor: theme.cardBorder }]}>
+              <ArrowLeft size={18} color={theme.textPrimary} />
+              <Text style={[styles.backText, { color: theme.textPrimary }]}>{t.login}</Text>
             </TouchableOpacity>
-            <LanguageToggle />
+            <View style={styles.rightControls}>
+              <ThemeToggle />
+              <LanguageToggle />
+            </View>
           </View>
 
-          {/* Header Titles */}
-          <View style={styles.headerSection}>
-            <Text style={styles.createAccountTitle}>{t.createAccount}</Text>
-            <Text style={styles.joinSubtitle}>{t.joinNepalAdvocate}</Text>
-          </View>
+          {/* Main Card */}
+          <Animated.View
+            style={[
+              styles.mainCard,
+              {
+                backgroundColor: theme.cardBackground,
+                borderColor: theme.cardBorder,
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }],
+              },
+            ]}
+          >
+            <Text style={[styles.createAccountTitle, { color: theme.textPrimary }]}>{t.createAccount}</Text>
+            <Text style={[styles.joinSubtitle, { color: theme.textSecondary }]}>{t.joinNepalAdvocate}</Text>
 
-          {/* Glass Form Container */}
-          <View style={styles.glassCard}>
+            <View style={{ height: 16 }} />
+
             {/* Role Selection */}
             <RoleSelector selectedRole={role} onSelectRole={setRole} />
 
@@ -180,7 +213,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
                   value={firstName}
                   onChangeText={setFirstName}
                   error={firstNameError}
-                  icon={<UserIcon size={18} color={Colors.primary} />}
+                  icon={<UserIcon size={18} color={theme.textSecondary} />}
                 />
               </View>
               <View style={{ flex: 1, marginLeft: 8 }}>
@@ -190,7 +223,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
                   value={lastName}
                   onChangeText={setLastName}
                   error={lastNameError}
-                  icon={<UserIcon size={18} color={Colors.primary} />}
+                  icon={<UserIcon size={18} color={theme.textSecondary} />}
                 />
               </View>
             </View>
@@ -203,7 +236,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
               keyboardType="email-address"
               autoCapitalize="none"
               error={emailError}
-              icon={<Mail size={18} color={Colors.primary} />}
+              icon={<Mail size={18} color={theme.textSecondary} />}
             />
 
             <CustomInput
@@ -212,7 +245,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
               value={phone}
               onChangeText={setPhone}
               keyboardType="phone-pad"
-              icon={<Phone size={18} color={Colors.primary} />}
+              icon={<Phone size={18} color={theme.textSecondary} />}
             />
 
             <CustomInput
@@ -222,7 +255,7 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
               onChangeText={setPassword}
               isPassword
               error={passwordError}
-              icon={<Lock size={18} color={Colors.primary} />}
+              icon={<Lock size={18} color={theme.textSecondary} />}
             />
 
             <CustomInput
@@ -232,16 +265,11 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
               onChangeText={setConfirmPassword}
               isPassword
               error={confirmPasswordError}
-              icon={<Lock size={18} color={Colors.primary} />}
+              icon={<Lock size={18} color={theme.textSecondary} />}
             />
 
             {/* Terms & Privacy Box */}
-            <View
-              style={[
-                styles.termsBox,
-                termsError && { borderColor: Colors.error, borderWidth: 1.5 },
-              ]}
-            >
+            <View style={[styles.termsBox, { backgroundColor: theme.background, borderColor: termsError ? theme.error : theme.cardBorder }]}>
               <TouchableOpacity
                 activeOpacity={0.8}
                 style={styles.checkboxRow}
@@ -251,11 +279,11 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
                 }}
               >
                 {acceptedTerms ? (
-                  <CheckSquare size={20} color={Colors.primary} />
+                  <CheckSquare size={18} color={theme.accent} />
                 ) : (
-                  <Square size={20} color={Colors.textMuted} />
+                  <Square size={18} color={theme.textMuted} />
                 )}
-                <Text style={styles.termsLabel}>{t.acceptTerms}</Text>
+                <Text style={[styles.termsLabel, { color: theme.textSecondary }]}>{t.acceptTerms}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -267,15 +295,15 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
                 }}
               >
                 {acceptedPrivacy ? (
-                  <CheckSquare size={20} color={Colors.primary} />
+                  <CheckSquare size={18} color={theme.accent} />
                 ) : (
-                  <Square size={20} color={Colors.textMuted} />
+                  <Square size={18} color={theme.textMuted} />
                 )}
-                <Text style={styles.termsLabel}>{t.acceptPrivacy}</Text>
+                <Text style={[styles.termsLabel, { color: theme.textSecondary }]}>{t.acceptPrivacy}</Text>
               </TouchableOpacity>
 
               {termsError && (
-                <Text style={styles.termsErrorText}>{t.mustAcceptTerms}</Text>
+                <Text style={[styles.termsErrorText, { color: theme.error }]}>{t.mustAcceptTerms}</Text>
               )}
             </View>
 
@@ -288,12 +316,12 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 
             {/* Login Switch */}
             <View style={styles.footerRow}>
-              <Text style={styles.footerText}>{t.alreadyHaveAccount}</Text>
+              <Text style={[styles.footerText, { color: theme.textSecondary }]}>{t.alreadyHaveAccount}</Text>
               <TouchableOpacity onPress={onNavigateToLogin} activeOpacity={0.7}>
-                <Text style={styles.loginLink}>{t.signInNow}</Text>
+                <Text style={[styles.loginLink, { color: theme.accent }]}>{t.signInNow}</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -304,12 +332,12 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
         type={dialogType}
         onDismiss={() => setDialogVisible(false)}
       />
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  gradientContainer: {
+  container: {
     flex: 1,
   },
   keyboardView: {
@@ -317,7 +345,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 22,
     paddingTop: Platform.OS === 'ios' ? 60 : 44,
     paddingBottom: 24,
   },
@@ -325,72 +353,64 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
   },
   backButton: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    borderWidth: 1,
   },
   backText: {
-    color: Colors.primary,
     fontWeight: '600',
-    fontSize: 14,
+    fontSize: 13,
     marginLeft: 6,
   },
-  headerSection: {
+  rightControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  mainCard: {
+    borderRadius: 20,
+    padding: 24,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
     marginBottom: 16,
   },
   createAccountTitle: {
-    color: Colors.textPrimary,
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '800',
-    letterSpacing: 0.5,
+    letterSpacing: -0.5,
   },
   joinSubtitle: {
-    color: Colors.textSecondary,
-    fontSize: 14,
+    fontSize: 13,
     marginTop: 4,
-  },
-  glassCard: {
-    backgroundColor: Colors.cardBackground,
-    borderRadius: 24,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: Colors.cardBorder,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.35,
-    shadowRadius: 15,
-    elevation: 8,
-    marginBottom: 16,
   },
   rowFields: {
     flexDirection: 'row',
   },
   termsBox: {
-    backgroundColor: 'rgba(15, 23, 42, 0.6)',
-    borderRadius: 14,
-    padding: 14,
+    borderRadius: 12,
+    padding: 12,
     borderWidth: 1,
-    borderColor: 'rgba(148, 163, 184, 0.2)',
-    marginVertical: 10,
+    marginVertical: 12,
   },
   checkboxRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   termsLabel: {
-    color: Colors.textSecondary,
     fontSize: 13,
     marginLeft: 10,
     flex: 1,
   },
   termsErrorText: {
-    color: Colors.error,
     fontSize: 12,
     marginTop: 8,
     fontWeight: '500',
@@ -399,14 +419,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 18,
   },
   footerText: {
-    color: Colors.textSecondary,
     fontSize: 14,
   },
   loginLink: {
-    color: Colors.primary,
     fontSize: 14,
     fontWeight: '700',
     marginLeft: 6,

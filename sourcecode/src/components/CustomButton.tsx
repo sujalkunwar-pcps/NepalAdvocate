@@ -7,8 +7,7 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Colors } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext';
 
 interface CustomButtonProps {
   title: string;
@@ -29,6 +28,8 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
   textStyle,
   variant = 'primary',
 }) => {
+  const { theme } = useTheme();
+
   const isOutline = variant === 'outline';
 
   if (isOutline) {
@@ -37,12 +38,17 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
         onPress={onPress}
         disabled={disabled || isLoading}
         activeOpacity={0.8}
-        style={[styles.outlineButton, disabled && styles.disabled, style]}
+        style={[
+          styles.outlineButton,
+          { borderColor: theme.primary, backgroundColor: 'transparent' },
+          disabled && styles.disabled,
+          style,
+        ]}
       >
         {isLoading ? (
-          <ActivityIndicator color={Colors.primary} size="small" />
+          <ActivityIndicator color={theme.primary} size="small" />
         ) : (
-          <Text style={[styles.outlineText, textStyle]}>{title}</Text>
+          <Text style={[styles.outlineText, { color: theme.primary }, textStyle]}>{title}</Text>
         )}
       </TouchableOpacity>
     );
@@ -53,68 +59,55 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
       onPress={onPress}
       disabled={disabled || isLoading}
       activeOpacity={0.85}
-      style={[styles.container, style]}
+      style={[
+        styles.button,
+        { backgroundColor: disabled ? theme.textMuted : theme.primary },
+        disabled && styles.disabled,
+        style,
+      ]}
     >
-      <LinearGradient
-        colors={
-          disabled
-            ? ['#475569', '#334155']
-            : [Colors.primary, Colors.primaryDark]
-        }
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[styles.gradient, disabled && styles.disabled]}
-      >
-        {isLoading ? (
-          <ActivityIndicator color={Colors.textInverse} size="small" />
-        ) : (
-          <Text style={[styles.text, textStyle]}>{title}</Text>
-        )}
-      </LinearGradient>
+      {isLoading ? (
+        <ActivityIndicator color={theme.textInverse} size="small" />
+      ) : (
+        <Text style={[styles.text, { color: theme.textInverse }, textStyle]}>{title}</Text>
+      )}
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    borderRadius: 14,
-    overflow: 'hidden',
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 4,
-    marginVertical: 6,
-  },
-  gradient: {
-    paddingVertical: 15,
+  button: {
+    borderRadius: 12,
+    paddingVertical: 14,
     paddingHorizontal: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 14,
+    marginVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   text: {
-    color: Colors.textInverse,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
     letterSpacing: 0.5,
   },
   outlineButton: {
     borderWidth: 1.5,
-    borderColor: Colors.primary,
-    borderRadius: 14,
+    borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 6,
+    marginVertical: 8,
   },
   outlineText: {
-    color: Colors.primary,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
   },
   disabled: {
-    opacity: 0.6,
+    opacity: 0.5,
   },
 });

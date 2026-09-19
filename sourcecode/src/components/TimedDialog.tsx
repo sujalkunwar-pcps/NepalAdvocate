@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Colors } from '../theme/colors';
 import { CheckCircle2, AlertCircle } from 'lucide-react-native';
+import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 
 interface TimedDialogProps {
@@ -21,6 +21,7 @@ export const TimedDialog: React.FC<TimedDialogProps> = ({
   onDismiss,
   autoCloseSeconds = 3,
 }) => {
+  const { theme } = useTheme();
   const { t } = useAuth();
 
   useEffect(() => {
@@ -44,27 +45,27 @@ export const TimedDialog: React.FC<TimedDialogProps> = ({
       onRequestClose={onDismiss}
     >
       <View style={styles.overlay}>
-        <View style={styles.dialogCard}>
+        <View style={[styles.dialogCard, { backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }]}>
           <View style={styles.iconContainer}>
             {isSuccess ? (
-              <CheckCircle2 size={40} color={Colors.success} />
+              <CheckCircle2 size={38} color={theme.success} />
             ) : (
-              <AlertCircle size={40} color={Colors.error} />
+              <AlertCircle size={38} color={theme.error} />
             )}
           </View>
 
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.message}>{message}</Text>
+          <Text style={[styles.title, { color: theme.textPrimary }]}>{title}</Text>
+          <Text style={[styles.message, { color: theme.textSecondary }]}>{message}</Text>
 
           <TouchableOpacity
             activeOpacity={0.8}
             style={[
               styles.button,
-              { backgroundColor: isSuccess ? Colors.success : Colors.primary },
+              { backgroundColor: isSuccess ? theme.success : theme.primary },
             ]}
             onPress={onDismiss}
           >
-            <Text style={styles.buttonText}>{t.ok}</Text>
+            <Text style={[styles.buttonText, { color: theme.textInverse }]}>{t.ok}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -75,7 +76,7 @@ export const TimedDialog: React.FC<TimedDialogProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
@@ -83,34 +84,30 @@ const styles = StyleSheet.create({
   dialogCard: {
     width: '100%',
     maxWidth: 340,
-    backgroundColor: '#1E293B',
     borderRadius: 20,
     padding: 24,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.5,
+    shadowOpacity: 0.25,
     shadowRadius: 15,
-    elevation: 10,
+    elevation: 8,
   },
   iconContainer: {
-    marginBottom: 14,
+    marginBottom: 12,
   },
   title: {
-    color: Colors.textPrimary,
     fontSize: 18,
     fontWeight: '700',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   message: {
-    color: Colors.textSecondary,
-    fontSize: 14,
+    fontSize: 13,
     textAlign: 'center',
     marginBottom: 20,
-    lineHeight: 20,
+    lineHeight: 18,
   },
   button: {
     width: '100%',
@@ -119,8 +116,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    color: '#0F172A',
     fontWeight: '700',
-    fontSize: 15,
+    fontSize: 14,
   },
 });

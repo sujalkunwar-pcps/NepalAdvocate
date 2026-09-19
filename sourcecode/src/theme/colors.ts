@@ -1,36 +1,76 @@
-export const Colors = {
-  // Brand Palette
-  background: '#0B132B',
-  backgroundGradient: ['#0B132B', '#1C2541', '#0F172A'] as const,
-  cardBackground: 'rgba(30, 41, 59, 0.75)',
-  cardBorder: 'rgba(255, 255, 255, 0.12)',
-  
-  // Accents
-  primary: '#F59E0B',        // Warm Legal Gold
-  primaryDark: '#D97706',
-  primaryGlow: 'rgba(245, 158, 11, 0.25)',
-  accentCyan: '#38BDF8',       // Tech Cyan highlight
-  accentCyanGlow: 'rgba(56, 189, 248, 0.2)',
+export type ThemeMode = 'light' | 'dark';
 
-  // Surface & Input
-  inputBackground: 'rgba(15, 23, 42, 0.8)',
-  inputBorder: 'rgba(148, 163, 184, 0.25)',
-  inputFocusedBorder: '#F59E0B',
+export interface ColorScheme {
+  mode: ThemeMode;
+  background: string;
+  cardBackground: string;
+  cardBorder: string;
+  primary: string;
+  primaryDark: string;
+  accent: string;
+  inputBottomBorder: string;
+  inputFocusedBorder: string;
+  inputErrorBorder: string;
+  textPrimary: string;
+  textSecondary: string;
+  textMuted: string;
+  textInverse: string;
+  success: string;
+  error: string;
+  warning: string;
+  roleBadgeClientBg: string;
+  roleBadgeClientText: string;
+  roleBadgeLawyerBg: string;
+  roleBadgeLawyerText: string;
+  toggleBg: string;
+}
+
+export const LightColors: ColorScheme = {
+  mode: 'light',
+  background: '#F8FAFC',
+  cardBackground: '#FFFFFF',
+  cardBorder: '#E2E8F0',
+  primary: '#0F172A',
+  primaryDark: '#020617',
+  accent: '#4F46E5', // Sleek Indigo accent
+  inputBottomBorder: '#CBD5E1',
+  inputFocusedBorder: '#4F46E5',
   inputErrorBorder: '#EF4444',
-  
-  // Text Hierarchy
-  textPrimary: '#F8FAFC',
-  textSecondary: '#94A3B8',
-  textMuted: '#64748B',
-  textInverse: '#0F172A',
-  
-  // Status Colors
+  textPrimary: '#0F172A',
+  textSecondary: '#475569',
+  textMuted: '#94A3B8',
+  textInverse: '#FFFFFF',
   success: '#10B981',
   error: '#EF4444',
   warning: '#F59E0B',
-  info: '#3B82F6',
+  roleBadgeClientBg: '#EEF2FF',
+  roleBadgeClientText: '#4F46E5',
+  roleBadgeLawyerBg: '#FEF3C7',
+  roleBadgeLawyerText: '#D97706',
+  toggleBg: '#F1F5F9',
+};
 
-  // Role Badges
-  clientRole: '#38BDF8',
-  lawyerRole: '#F59E0B',
+export const DarkColors: ColorScheme = {
+  mode: 'dark',
+  background: '#0B0F19',
+  cardBackground: '#111827',
+  cardBorder: '#1F2937',
+  primary: '#F8FAFC',
+  primaryDark: '#E2E8F0',
+  accent: '#6366F1', // Indigo Glow
+  inputBottomBorder: '#374151',
+  inputFocusedBorder: '#6366F1',
+  inputErrorBorder: '#EF4444',
+  textPrimary: '#F9FAFB',
+  textSecondary: '#9CA3AF',
+  textMuted: '#6B7280',
+  textInverse: '#0B0F19',
+  success: '#10B981',
+  error: '#EF4444',
+  warning: '#F59E0B',
+  roleBadgeClientBg: 'rgba(99, 102, 241, 0.15)',
+  roleBadgeClientText: '#818CF8',
+  roleBadgeLawyerBg: 'rgba(245, 158, 11, 0.15)',
+  roleBadgeLawyerText: '#FBBF24',
+  toggleBg: '#1F2937',
 };
