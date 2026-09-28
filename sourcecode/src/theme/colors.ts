@@ -23,6 +23,7 @@ export interface ColorScheme {
   roleBadgeLawyerBg: string;
   roleBadgeLawyerText: string;
   toggleBg: string;
+  inputBg: string;
 }
 
 export const LightColors: ColorScheme = {
@@ -32,9 +33,9 @@ export const LightColors: ColorScheme = {
   cardBorder: '#E2E8F0',
   primary: '#0F172A',
   primaryDark: '#020617',
-  accent: '#4F46E5', // Sleek Indigo accent
-  inputBottomBorder: '#CBD5E1',
-  inputFocusedBorder: '#4F46E5',
+  accent: '#0F172A', // Minimalist Charcoal Accent (No blue)
+  inputBottomBorder: '#E2E8F0',
+  inputFocusedBorder: '#0F172A', // Crisp Dark Underline (No blue)
   inputErrorBorder: '#EF4444',
   textPrimary: '#0F172A',
   textSecondary: '#475569',
@@ -43,11 +44,12 @@ export const LightColors: ColorScheme = {
   success: '#10B981',
   error: '#EF4444',
   warning: '#F59E0B',
-  roleBadgeClientBg: '#EEF2FF',
-  roleBadgeClientText: '#4F46E5',
+  roleBadgeClientBg: '#F1F5F9', // Neutral Slate
+  roleBadgeClientText: '#0F172A',
   roleBadgeLawyerBg: '#FEF3C7',
   roleBadgeLawyerText: '#D97706',
   toggleBg: '#F1F5F9',
+  inputBg: '#F1F5F9',
 };
 
 export const DarkColors: ColorScheme = {
@@ -57,9 +59,9 @@ export const DarkColors: ColorScheme = {
   cardBorder: '#1F2937',
   primary: '#F8FAFC',
   primaryDark: '#E2E8F0',
-  accent: '#6366F1', // Indigo Glow
+  accent: '#F8FAFC', // Minimalist White Accent (No blue)
   inputBottomBorder: '#374151',
-  inputFocusedBorder: '#6366F1',
+  inputFocusedBorder: '#F8FAFC', // Crisp White Underline (No blue)
   inputErrorBorder: '#EF4444',
   textPrimary: '#F9FAFB',
   textSecondary: '#9CA3AF',
@@ -68,9 +70,10 @@ export const DarkColors: ColorScheme = {
   success: '#10B981',
   error: '#EF4444',
   warning: '#F59E0B',
-  roleBadgeClientBg: 'rgba(99, 102, 241, 0.15)',
-  roleBadgeClientText: '#818CF8',
+  roleBadgeClientBg: '#1F2937', // Dark Slate
+  roleBadgeClientText: '#F9FAFB',
   roleBadgeLawyerBg: 'rgba(245, 158, 11, 0.15)',
   roleBadgeLawyerText: '#FBBF24',
   toggleBg: '#1F2937',
+  inputBg: '#1F2937',
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
@@ -6,26 +6,53 @@ import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { RegisterScreen } from './src/screens/RegisterScreen';
 import { DashboardScreen } from './src/screens/DashboardScreen';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { SplashScreen } from './src/screens/SplashScreen';
+import { MainTabNavigator } from './src/navigation/MainTabNavigator';
+import { View, StyleSheet, Platform } from 'react-native';
+
+// Web global CSS reset to eliminate horizontal scrolling & body margin offsets
+if (Platform.OS === 'web' && typeof document !== 'undefined') {
+  const styleId = 'nepal-advocate-web-reset';
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      html, body, #root, [data-contents="true"] {
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+      }
+      * {
+        box-sizing: border-box !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
 
 const MainNavigation: React.FC = () => {
   const { theme, mode } = useTheme();
-  const { user, isLoading } = useAuth();
+  const { user } = useAuth();
+  const [showSplash, setShowSplash] = useState(true);
   const [currentScreen, setCurrentScreen] = useState<'login' | 'register'>('login');
 
-  if (isLoading) {
+  if (showSplash) {
     return (
-      <View style={[styles.loadingContainer, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color={theme.accent} />
+      <View style={[styles.rootContainer, { backgroundColor: theme.background }]}>
+        <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />
+        <SplashScreen onFinish={() => setShowSplash(false)} duration={2500} />
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.background }}>
+    <View style={[styles.rootContainer, { backgroundColor: theme.background }]}>
       <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />
       {user ? (
-        <DashboardScreen />
+        <MainTabNavigator />
       ) : currentScreen === 'register' ? (
         <RegisterScreen
           onNavigateToLogin={() => setCurrentScreen('login')}
@@ -54,9 +81,10 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  loadingContainer: {
+  rootContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: '100%',
+    height: '100%',
+    overflow: 'hidden',
   },
 });

@@ -1,112 +1,166 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Scale, LogOut, User as UserIcon, Shield, Calendar, MessageSquare, FileText, Sparkles } from 'lucide-react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  RefreshControl,
+  ActivityIndicator,
+  Image,
+  Platform,
+} from 'react-native';
+import { LogOut, Bell } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { typography } from '../theme/typography';
 import { LanguageToggle } from '../components/LanguageToggle';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { ProfileHeaderCard } from '../components/ProfileHeaderCard';
+import { QuickActionGrid } from '../components/QuickActionGrid';
+import { AppointmentListCard } from '../components/AppointmentListCard';
+import { LawyerDirectoryWidget } from '../components/LawyerDirectoryWidget';
+import { RecentDocumentsWidget } from '../components/RecentDocumentsWidget';
+import { TimedDialog } from '../components/TimedDialog';
+import dashboardService from '../services/dashboardService';
+import { DashboardData } from '../types/dashboard';
 
 export const DashboardScreen: React.FC = () => {
   const { theme } = useTheme();
   const { user, logout, t } = useAuth();
 
-  const isLawyer = user?.role === 'LAWYER';
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogMessage, setDialogMessage] = useState('');
+
+  const loadDashboard = async () => {
+    try {
+      const data = await dashboardService.getDashboardData();
+      // Combine state user with backend profile
+      if (user) {
+        data.user = {
+          ...data.user,
+          firstName: user.firstName || data.user.firstName,
+          lastName: user.lastName || data.user.lastName,
+          email: user.email || data.user.email,
+          role: user.role || data.user.role,
+        };
+      }
+      setDashboardData(data);
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    loadDashboard();
+  }, [user]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadDashboard();
+  };
+
+  const handleActionClick = (actionName: string) => {
+    setDialogTitle(actionName);
+    setDialogMessage(`Navigating to ${actionName}. Backend connection endpoint ready for live sync.`);
+    setDialogVisible(true);
+  };
+
+  if (loading || !dashboardData) {
+    return (
+      <View style={[styles.loadingContainer, { backgroundColor: theme.background }]}>
+        <ActivityIndicator size="large" color={theme.primary} />
+        <Text style={[styles.loadingText, { color: theme.textSecondary }]}>
+          Loading Legal Dashboard...
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header Bar */}
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primary} />
+        }
+      >
+        {/* Top Header Bar: 2 controls on left, Title centered, Language on right */}
         <View style={styles.headerBar}>
-          <View style={styles.brandRow}>
-            <Scale size={24} color={theme.accent} />
-            <Text style={[styles.brandTitle, { color: theme.textPrimary }]}>{t.appName}</Text>
-          </View>
-          <View style={styles.headerRight}>
-            <ThemeToggle />
-            <LanguageToggle />
-            <TouchableOpacity onPress={logout} style={[styles.logoutButton, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
-              <LogOut size={16} color={theme.error} />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Welcome Card */}
-        <View style={[styles.userCard, { backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }]}>
-          <View style={[styles.userAvatar, { backgroundColor: theme.toggleBg }]}>
-            <UserIcon size={28} color={theme.accent} />
-          </View>
-          <View style={styles.userInfo}>
-            <Text style={[styles.greeting, { color: theme.textSecondary }]}>{t.welcomeUser},</Text>
-            <Text style={[styles.userName, { color: theme.textPrimary }]}>
-              {user ? `${user.firstName} ${user.lastName}` : 'Guest User'}
-            </Text>
-            <Text style={[styles.userEmail, { color: theme.textMuted }]}>{user?.email}</Text>
-          </View>
-          <View
-            style={[
-              styles.roleBadge,
-              {
-                backgroundColor: isLawyer ? theme.roleBadgeLawyerBg : theme.roleBadgeClientBg,
-                borderColor: isLawyer ? theme.roleBadgeLawyerText : theme.roleBadgeClientText,
-              },
-            ]}
-          >
-            <Text
-              style={[
-                styles.roleText,
-                { color: isLawyer ? theme.roleBadgeLawyerText : theme.roleBadgeClientText },
-              ]}
+          <View style={styles.headerLeftGroup}>
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => handleActionClick('Notifications')}
+              style={[styles.iconButton, { backgroundColor: theme.toggleBg, borderColor: theme.cardBorder }]}
             >
-              {isLawyer ? t.roleLawyer : t.roleClient}
-            </Text>
-          </View>
-        </View>
+              <Bell size={16} color={theme.textPrimary} />
+            </TouchableOpacity>
 
-        {/* Quick Legal Hub Grid */}
-        <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>Legal Services Hub</Text>
-
-        <View style={styles.grid}>
-          <View style={[styles.gridCard, { backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }]}>
-            <View style={[styles.iconBox, { backgroundColor: theme.roleBadgeClientBg }]}>
-              <Calendar size={22} color={theme.roleBadgeClientText} />
-            </View>
-            <Text style={[styles.gridCardTitle, { color: theme.textPrimary }]}>Appointments</Text>
-            <Text style={[styles.gridCardSub, { color: theme.textMuted }]}>Schedule legal consultations</Text>
+            <ThemeToggle />
           </View>
 
-          <View style={[styles.gridCard, { backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }]}>
-            <View style={[styles.iconBox, { backgroundColor: theme.roleBadgeLawyerBg }]}>
-              <Sparkles size={22} color={theme.roleBadgeLawyerText} />
-            </View>
-            <Text style={[styles.gridCardTitle, { color: theme.textPrimary }]}>AI Legal Assistant</Text>
-            <Text style={[styles.gridCardSub, { color: theme.textMuted }]}>Instant legal guidance</Text>
-          </View>
-
-          <View style={[styles.gridCard, { backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }]}>
-            <View style={[styles.iconBox, { backgroundColor: 'rgba(16, 185, 129, 0.12)' }]}>
-              <MessageSquare size={22} color={theme.success} />
-            </View>
-            <Text style={[styles.gridCardTitle, { color: theme.textPrimary }]}>Messages</Text>
-            <Text style={[styles.gridCardSub, { color: theme.textMuted }]}>Chat with verified lawyers</Text>
-          </View>
-
-          <View style={[styles.gridCard, { backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }]}>
-            <View style={[styles.iconBox, { backgroundColor: 'rgba(168, 85, 247, 0.12)' }]}>
-              <FileText size={22} color="#A855F7" />
-            </View>
-            <Text style={[styles.gridCardTitle, { color: theme.textPrimary }]}>Documents</Text>
-            <Text style={[styles.gridCardSub, { color: theme.textMuted }]}>Draft & review contracts</Text>
-          </View>
-        </View>
-
-        {/* Security Banner */}
-        <View style={[styles.banner, { backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }]}>
-          <Shield size={18} color={theme.accent} style={{ marginRight: 10 }} />
-          <Text style={[styles.bannerText, { color: theme.textSecondary }]}>
-            Logged in securely to NepalAdvocate Legal Network
+          <Text style={[styles.brandTitle, { color: theme.textPrimary }]} numberOfLines={1}>
+            NepalAdvocate
           </Text>
+
+          <View style={styles.headerRightGroup}>
+            <LanguageToggle />
+          </View>
         </View>
+
+        {/* Profile Card (Without Logout Button) */}
+        <ProfileHeaderCard
+          user={dashboardData.user}
+          stats={dashboardData.stats}
+          onEditProfile={() => handleActionClick('Edit Profile')}
+        />
+
+        {/* Quick Legal Hub Actions */}
+        <QuickActionGrid
+          onBookConsultation={() => handleActionClick('Find Verified Lawyer')}
+          onAiAssistant={() => handleActionClick('AI Advocate Chatbot')}
+          onMyDocuments={() => handleActionClick('Legal Vault')}
+          onTrackCases={() => handleActionClick('Court Case Status')}
+        />
+
+        {/* Upcoming Appointments Section */}
+        <AppointmentListCard
+          appointments={dashboardData.upcomingAppointments}
+          onViewAll={() => handleActionClick('All Appointments')}
+          onSelectAppointment={(apt) => handleActionClick(`Appointment with ${apt.lawyerName}`)}
+        />
+
+        {/* Recommended Verified Lawyers Directory */}
+        <LawyerDirectoryWidget
+          lawyers={dashboardData.recommendedLawyers}
+          onViewAllLawyers={() => handleActionClick('Lawyer Directory')}
+          onSelectLawyer={(lwy) => handleActionClick(`Consultation with ${lwy.name}`)}
+        />
+
+        {/* Recent Legal Documents */}
+        <RecentDocumentsWidget
+          documents={dashboardData.recentDocuments}
+          onViewAll={() => handleActionClick('Document Library')}
+          onSelectDocument={(doc) => handleActionClick(`View ${doc.title}`)}
+        />
       </ScrollView>
+
+      <TimedDialog
+        visible={dialogVisible}
+        title={dialogTitle}
+        message={dialogMessage}
+        type="info"
+        onDismiss={() => setDialogVisible(false)}
+      />
     </View>
   );
 };
@@ -115,125 +169,53 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 13,
+    marginTop: 12,
+    fontWeight: '500',
+  },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 54,
-    paddingBottom: 30,
+    paddingTop: Platform.OS === 'ios' ? 44 : 24,
+    paddingBottom: 36,
   },
   headerBar: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 20,
+    width: '100%',
   },
-  brandRow: {
+  headerLeftGroup: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
+    justifyContent: 'flex-start',
   },
   brandTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '800',
-    marginLeft: 8,
+    letterSpacing: -0.5,
+    textAlign: 'center',
+    fontFamily: typography.fontFamily,
+    flex: 2,
   },
-  headerRight: {
+  headerRightGroup: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
+    justifyContent: 'flex-end',
   },
-  logoutButton: {
-    marginLeft: 8,
-    padding: 9,
-    borderRadius: 19,
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.2)',
-  },
-  userCard: {
+  iconButton: {
+    padding: 8,
     borderRadius: 18,
-    padding: 16,
     borderWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 22,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-  },
-  userAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  userInfo: {
-    flex: 1,
-  },
-  greeting: {
-    fontSize: 12,
-  },
-  userName: {
-    fontSize: 17,
-    fontWeight: '700',
-  },
-  userEmail: {
-    fontSize: 12,
-    marginTop: 2,
-  },
-  roleBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  roleText: {
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  sectionTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    marginBottom: 14,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  gridCard: {
-    width: '48%',
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    marginBottom: 14,
-  },
-  iconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-  },
-  gridCardTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  gridCardSub: {
-    fontSize: 11,
-    marginTop: 4,
-  },
-  banner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 14,
-    padding: 14,
-    borderWidth: 1,
-    marginTop: 10,
-  },
-  bannerText: {
-    fontSize: 12,
-    flex: 1,
-    fontWeight: '500',
+    marginRight: 6,
   },
 });
+

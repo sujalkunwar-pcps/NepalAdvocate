@@ -8,12 +8,15 @@ import {
   Platform,
   TouchableOpacity,
   Animated,
+  Image,
 } from 'react-native';
-import { Mail, Lock, Scale, ShieldCheck } from 'lucide-react-native';
+import { typography } from '../theme/typography';
+import { Mail, Lock, CheckSquare, Square } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 import { CustomInput } from '../components/CustomInput';
 import { CustomButton } from '../components/CustomButton';
+import { SocialButtons } from '../components/SocialButtons';
 import { LanguageToggle } from '../components/LanguageToggle';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { TimedDialog } from '../components/TimedDialog';
@@ -32,6 +35,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
@@ -40,7 +45,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   const [dialogMessage, setDialogMessage] = useState('');
   const [dialogType, setDialogType] = useState<'success' | 'error' | 'info'>('info');
 
-  // Fade-in animation
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
 
@@ -48,12 +52,12 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 400,
+        duration: 450,
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 400,
+        duration: 450,
         useNativeDriver: true,
       }),
     ]).start();
@@ -109,8 +113,21 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
     }
   };
 
+  const handleForgotPassword = () => {
+    setDialogTitle(t.forgotPassword);
+    setDialogMessage(t.passwordResetSent);
+    setDialogType('info');
+    setDialogVisible(true);
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
+      {/* Mode & Language Pinned to Full Top Right */}
+      <View style={styles.fullTopRightControls}>
+        <ThemeToggle />
+        <LanguageToggle />
+      </View>
+
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboardView}
@@ -120,80 +137,97 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Header Controls */}
-          <View style={styles.headerBar}>
-            <View style={[styles.badgeRow, { backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }]}>
-              <Scale size={16} color={theme.accent} />
-              <Text style={[styles.badgeText, { color: theme.textPrimary }]}>NepalAdvocate</Text>
-            </View>
-            <View style={styles.rightControls}>
-              <ThemeToggle />
-              <LanguageToggle />
-            </View>
-          </View>
-
-          {/* Animated Hero & Form Container */}
-          <Animated.View
-            style={[
-              styles.mainCard,
-              {
-                backgroundColor: theme.cardBackground,
-                borderColor: theme.cardBorder,
-                opacity: fadeAnim,
-                transform: [{ translateY: slideAnim }],
-              },
-            ]}
-          >
-            {/* Header Title */}
-            <View style={styles.titleSection}>
-              <Text style={[styles.welcomeText, { color: theme.textPrimary }]}>{t.welcomeBack}</Text>
-              <Text style={[styles.subtitleText, { color: theme.textSecondary }]}>{t.loginSubtitle}</Text>
+          <View style={styles.responsiveWrapper}>
+            {/* Centered App Title */}
+            <View style={styles.brandTitleHeader}>
+              <Text style={[styles.brandTitleText, { color: theme.textPrimary }]} numberOfLines={1}>
+                NepalAdvocate
+              </Text>
             </View>
 
-            <View style={styles.formSpacer} />
+            {/* Animated Main Card */}
+            <Animated.View
+              style={[
+                styles.mainCard,
+                {
+                  backgroundColor: theme.cardBackground,
+                  borderColor: theme.cardBorder,
+                  opacity: fadeAnim,
+                  transform: [{ translateY: slideAnim }],
+                },
+              ]}
+            >
+              {/* Headline */}
+              <View style={styles.leftTitleSection}>
+                <Text style={[styles.welcomeText, { color: theme.textPrimary }]}>{t.welcomeBack}</Text>
+                <Text style={[styles.subtitleText, { color: theme.textSecondary }]}>{t.loginSubtitle}</Text>
+              </View>
 
-            {/* Input Fields (Bottom Border Style) */}
-            <CustomInput
-              label={t.email}
-              placeholder={t.enterYourEmail}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              error={emailError}
-              icon={<Mail size={18} color={theme.textSecondary} />}
-            />
+              {/* Input Fields */}
+              <CustomInput
+                label={t.email}
+                placeholder={t.enterYourEmail}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                error={emailError}
+                icon={<Mail size={18} color={theme.textSecondary} />}
+              />
 
-            <CustomInput
-              label={t.password}
-              placeholder={t.enterYourPassword}
-              value={password}
-              onChangeText={setPassword}
-              isPassword
-              error={passwordError}
-              icon={<Lock size={18} color={theme.textSecondary} />}
-            />
+              <CustomInput
+                label={t.password}
+                placeholder={t.enterYourPassword}
+                value={password}
+                onChangeText={setPassword}
+                isPassword
+                error={passwordError}
+                icon={<Lock size={18} color={theme.textSecondary} />}
+              />
 
-            <CustomButton
-              title={t.login}
-              onPress={handleLogin}
-              isLoading={isLoading}
-              style={styles.loginButton}
-            />
+              {/* Options Row */}
+              <View style={styles.optionsRow}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.rememberMeRow}
+                  onPress={() => setRememberMe(!rememberMe)}
+                >
+                  {rememberMe ? (
+                    <CheckSquare size={16} color={theme.textPrimary} />
+                  ) : (
+                    <Square size={16} color={theme.textMuted} />
+                  )}
+                  <Text style={[styles.rememberMeText, { color: theme.textSecondary }]}>
+                    {t.rememberMe}
+                  </Text>
+                </TouchableOpacity>
 
-            {/* Account Switch */}
-            <View style={styles.footerRow}>
-              <Text style={[styles.footerText, { color: theme.textSecondary }]}>{t.dontHaveAccount}</Text>
-              <TouchableOpacity onPress={onNavigateToRegister} activeOpacity={0.7}>
-                <Text style={[styles.registerLink, { color: theme.accent }]}>{t.register}</Text>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
+                <TouchableOpacity activeOpacity={0.7} onPress={handleForgotPassword}>
+                  <Text style={[styles.forgotPasswordText, { color: theme.textSecondary }]}>
+                    {t.forgotPassword}
+                  </Text>
+                </TouchableOpacity>
+              </View>
 
-          {/* Security Note */}
-          <View style={styles.securityNote}>
-            <ShieldCheck size={14} color={theme.textMuted} style={{ marginRight: 6 }} />
-            <Text style={[styles.securityText, { color: theme.textMuted }]}>{t.authSecureNote}</Text>
+              {/* Sign In Button */}
+              <CustomButton
+                title={t.login}
+                onPress={handleLogin}
+                isLoading={isLoading}
+                style={styles.loginButton}
+              />
+
+              {/* Social Logins */}
+              <SocialButtons />
+
+              {/* Register Link */}
+              <View style={styles.footerRow}>
+                <Text style={[styles.footerText, { color: theme.textSecondary }]}>{t.dontHaveAccount}</Text>
+                <TouchableOpacity onPress={onNavigateToRegister} activeOpacity={0.7}>
+                  <Text style={[styles.registerLink, { color: theme.textPrimary }]}>{t.signUpNow}</Text>
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -212,93 +246,114 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: '100%',
   },
   keyboardView: {
     flex: 1,
+    width: '100%',
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 22,
-    paddingTop: Platform.OS === 'ios' ? 60 : 44,
-    paddingBottom: 24,
-    justifyContent: 'space-between',
-  },
-  headerBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  badgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    borderWidth: 1,
+    paddingTop: Platform.OS === 'ios' ? 44 : 20,
+    paddingBottom: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  badgeText: {
-    fontSize: 13,
-    fontWeight: '700',
-    marginLeft: 6,
-    letterSpacing: 0.3,
+  responsiveWrapper: {
+    width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center',
   },
-  rightControls: {
+  fullTopRightControls: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 44 : 16,
+    right: 16,
+    zIndex: 100,
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  brandTitleHeader: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 16,
+    marginTop: 8,
+  },
+  brandTitleText: {
+    fontSize: 24,
+    fontWeight: '800',
+    letterSpacing: -0.6,
+    textAlign: 'center',
+    fontFamily: typography.fontFamily,
   },
   mainCard: {
-    borderRadius: 20,
-    padding: 26,
+    width: '100%',
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingTop: 22,
+    paddingBottom: 18,
     borderWidth: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
-    marginVertical: 12,
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 2,
   },
-  titleSection: {
+  leftTitleSection: {
     alignItems: 'flex-start',
-    marginBottom: 10,
+    marginBottom: 16,
   },
   welcomeText: {
-    fontSize: 26,
+    fontSize: 25,
     fontWeight: '800',
     letterSpacing: -0.5,
+    textAlign: 'left',
+    fontFamily: typography.fontFamily,
   },
   subtitleText: {
-    fontSize: 14,
+    fontSize: 13,
     marginTop: 4,
+    textAlign: 'left',
     fontWeight: '400',
   },
-  formSpacer: {
-    height: 16,
+  optionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    rowGap: 6,
+    marginVertical: 10,
+    width: '100%',
+  },
+  rememberMeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  rememberMeText: {
+    fontSize: 11.5,
+    marginLeft: 5,
+    fontWeight: '500',
+  },
+  forgotPasswordText: {
+    fontSize: 11.5,
+    fontWeight: '600',
   },
   loginButton: {
-    marginTop: 12,
+    marginTop: 8,
   },
   footerRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    flexWrap: 'wrap',
+    marginTop: 12,
   },
   footerText: {
-    fontSize: 14,
+    fontSize: 12.5,
   },
   registerLink: {
-    fontSize: 14,
+    fontSize: 12.5,
     fontWeight: '700',
     marginLeft: 6,
-  },
-  securityNote: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  securityText: {
-    fontSize: 12,
   },
 });

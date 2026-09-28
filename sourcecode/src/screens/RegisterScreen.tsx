@@ -8,13 +8,17 @@ import {
   Platform,
   TouchableOpacity,
   Animated,
+  Image,
 } from 'react-native';
 import { Mail, Lock, User as UserIcon, Phone, CheckSquare, Square, ArrowLeft } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { typography } from '../theme/typography';
 import { CustomInput } from '../components/CustomInput';
 import { CustomButton } from '../components/CustomButton';
 import { RoleSelector } from '../components/RoleSelector';
+import { PasswordStrengthMeter } from '../components/PasswordStrengthMeter';
+import { SocialButtons } from '../components/SocialButtons';
 import { LanguageToggle } from '../components/LanguageToggle';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { TimedDialog } from '../components/TimedDialog';
@@ -63,12 +67,12 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 400,
+        duration: 450,
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 400,
+        duration: 450,
         useNativeDriver: true,
       }),
     ]).start();
@@ -163,6 +167,23 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
+      {/* Back Button Pinned to Full Top Left */}
+      <TouchableOpacity
+        onPress={onNavigateToLogin}
+        activeOpacity={0.7}
+        style={[styles.fullTopLeftBack, { backgroundColor: theme.toggleBg, borderColor: theme.cardBorder }]}
+      >
+        <ArrowLeft size={16} color={theme.textPrimary} />
+        <Text style={[styles.backText, { color: theme.textPrimary }]}>{t.login}</Text>
+      </TouchableOpacity>
+
+      {/* Mode & Language Pinned to Full Top Right */}
+      <View style={styles.fullTopRightControls}>
+        <ThemeToggle />
+        <View style={{ width: 6 }} />
+        <LanguageToggle />
+      </View>
+
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboardView}
@@ -172,156 +193,153 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Header Controls */}
-          <View style={styles.headerBar}>
-            <TouchableOpacity onPress={onNavigateToLogin} style={[styles.backButton, { backgroundColor: theme.toggleBg, borderColor: theme.cardBorder }]}>
-              <ArrowLeft size={18} color={theme.textPrimary} />
-              <Text style={[styles.backText, { color: theme.textPrimary }]}>{t.login}</Text>
-            </TouchableOpacity>
-            <View style={styles.rightControls}>
-              <ThemeToggle />
-              <LanguageToggle />
+          <View style={styles.responsiveWrapper}>
+            {/* Centered App Title */}
+            <View style={styles.brandTitleHeader}>
+              <Text style={[styles.brandNameText, { color: theme.textPrimary }]} numberOfLines={1}>
+                NepalAdvocate
+              </Text>
             </View>
+
+            {/* Main Card */}
+            <Animated.View
+              style={[
+                styles.mainCard,
+                {
+                  backgroundColor: theme.cardBackground,
+                  borderColor: theme.cardBorder,
+                  opacity: fadeAnim,
+                  transform: [{ translateY: slideAnim }],
+                },
+              ]}
+            >
+              <View style={styles.leftTitleSection}>
+                <Text style={[styles.createAccountTitle, { color: theme.textPrimary }]}>{t.createAccount}</Text>
+                <Text style={[styles.joinSubtitle, { color: theme.textSecondary }]}>{t.joinNepalAdvocate}</Text>
+              </View>
+
+              <RoleSelector selectedRole={role} onSelectRole={setRole} />
+
+              <View style={styles.rowFields}>
+                <View style={{ flex: 1, marginRight: 6 }}>
+                  <CustomInput
+                    label={t.firstName}
+                    placeholder={t.firstName}
+                    value={firstName}
+                    onChangeText={setFirstName}
+                    error={firstNameError}
+                    icon={<UserIcon size={18} color={theme.textSecondary} />}
+                  />
+                </View>
+                <View style={{ flex: 1, marginLeft: 6 }}>
+                  <CustomInput
+                    label={t.lastName}
+                    placeholder={t.lastName}
+                    value={lastName}
+                    onChangeText={setLastName}
+                    error={lastNameError}
+                    icon={<UserIcon size={18} color={theme.textSecondary} />}
+                  />
+                </View>
+              </View>
+
+              <CustomInput
+                label={t.email}
+                placeholder={t.enterYourEmail}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                error={emailError}
+                icon={<Mail size={18} color={theme.textSecondary} />}
+              />
+
+              <CustomInput
+                label={`${t.phone} (${t.optional})`}
+                placeholder="98XXXXXXXX"
+                value={phone}
+                onChangeText={setPhone}
+                keyboardType="phone-pad"
+                icon={<Phone size={18} color={theme.textSecondary} />}
+              />
+
+              <CustomInput
+                label={t.password}
+                placeholder={t.enterYourPassword}
+                value={password}
+                onChangeText={setPassword}
+                isPassword
+                error={passwordError}
+                icon={<Lock size={18} color={theme.textSecondary} />}
+              />
+
+              <PasswordStrengthMeter password={password} />
+
+              <CustomInput
+                label={t.confirmPassword}
+                placeholder={t.confirmPasswordHint}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                isPassword
+                error={confirmPasswordError}
+                icon={<Lock size={18} color={theme.textSecondary} />}
+              />
+
+              <View style={[styles.termsBox, { backgroundColor: theme.background, borderColor: termsError ? theme.error : theme.cardBorder }]}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.checkboxRow}
+                  onPress={() => {
+                    setAcceptedTerms(!acceptedTerms);
+                    if (!acceptedTerms && acceptedPrivacy) setTermsError(false);
+                  }}
+                >
+                  {acceptedTerms ? (
+                    <CheckSquare size={17} color={theme.textPrimary} />
+                  ) : (
+                    <Square size={17} color={theme.textMuted} />
+                  )}
+                  <Text style={[styles.termsLabel, { color: theme.textSecondary }]}>{t.acceptTerms}</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={[styles.checkboxRow, { marginTop: 10 }]}
+                  onPress={() => {
+                    setAcceptedPrivacy(!acceptedPrivacy);
+                    if (acceptedTerms && !acceptedPrivacy) setTermsError(false);
+                  }}
+                >
+                  {acceptedPrivacy ? (
+                    <CheckSquare size={17} color={theme.textPrimary} />
+                  ) : (
+                    <Square size={17} color={theme.textMuted} />
+                  )}
+                  <Text style={[styles.termsLabel, { color: theme.textSecondary }]}>{t.acceptPrivacy}</Text>
+                </TouchableOpacity>
+
+                {termsError && (
+                  <Text style={[styles.termsErrorText, { color: theme.error }]}>{t.mustAcceptTerms}</Text>
+                )}
+              </View>
+
+              <CustomButton
+                title={t.register}
+                onPress={handleRegister}
+                isLoading={isLoading}
+                style={{ ...styles.registerButton, backgroundColor: theme.primary }}
+              />
+
+              <SocialButtons />
+
+              <View style={styles.footerRow}>
+                <Text style={[styles.footerText, { color: theme.textSecondary }]}>{t.alreadyHaveAccount}</Text>
+                <TouchableOpacity onPress={onNavigateToLogin} activeOpacity={0.7}>
+                  <Text style={[styles.loginLink, { color: theme.textPrimary }]}>{t.signInNow}</Text>
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
           </View>
-
-          {/* Main Card */}
-          <Animated.View
-            style={[
-              styles.mainCard,
-              {
-                backgroundColor: theme.cardBackground,
-                borderColor: theme.cardBorder,
-                opacity: fadeAnim,
-                transform: [{ translateY: slideAnim }],
-              },
-            ]}
-          >
-            <Text style={[styles.createAccountTitle, { color: theme.textPrimary }]}>{t.createAccount}</Text>
-            <Text style={[styles.joinSubtitle, { color: theme.textSecondary }]}>{t.joinNepalAdvocate}</Text>
-
-            <View style={{ height: 16 }} />
-
-            {/* Role Selection */}
-            <RoleSelector selectedRole={role} onSelectRole={setRole} />
-
-            {/* Form Fields */}
-            <View style={styles.rowFields}>
-              <View style={{ flex: 1, marginRight: 8 }}>
-                <CustomInput
-                  label={t.firstName}
-                  placeholder={t.firstName}
-                  value={firstName}
-                  onChangeText={setFirstName}
-                  error={firstNameError}
-                  icon={<UserIcon size={18} color={theme.textSecondary} />}
-                />
-              </View>
-              <View style={{ flex: 1, marginLeft: 8 }}>
-                <CustomInput
-                  label={t.lastName}
-                  placeholder={t.lastName}
-                  value={lastName}
-                  onChangeText={setLastName}
-                  error={lastNameError}
-                  icon={<UserIcon size={18} color={theme.textSecondary} />}
-                />
-              </View>
-            </View>
-
-            <CustomInput
-              label={t.email}
-              placeholder={t.enterYourEmail}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              error={emailError}
-              icon={<Mail size={18} color={theme.textSecondary} />}
-            />
-
-            <CustomInput
-              label={`${t.phone} (${t.optional})`}
-              placeholder="98XXXXXXXX"
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
-              icon={<Phone size={18} color={theme.textSecondary} />}
-            />
-
-            <CustomInput
-              label={t.password}
-              placeholder={t.enterYourPassword}
-              value={password}
-              onChangeText={setPassword}
-              isPassword
-              error={passwordError}
-              icon={<Lock size={18} color={theme.textSecondary} />}
-            />
-
-            <CustomInput
-              label={t.confirmPassword}
-              placeholder={t.confirmPasswordHint}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              isPassword
-              error={confirmPasswordError}
-              icon={<Lock size={18} color={theme.textSecondary} />}
-            />
-
-            {/* Terms & Privacy Box */}
-            <View style={[styles.termsBox, { backgroundColor: theme.background, borderColor: termsError ? theme.error : theme.cardBorder }]}>
-              <TouchableOpacity
-                activeOpacity={0.8}
-                style={styles.checkboxRow}
-                onPress={() => {
-                  setAcceptedTerms(!acceptedTerms);
-                  if (!acceptedTerms && acceptedPrivacy) setTermsError(false);
-                }}
-              >
-                {acceptedTerms ? (
-                  <CheckSquare size={18} color={theme.accent} />
-                ) : (
-                  <Square size={18} color={theme.textMuted} />
-                )}
-                <Text style={[styles.termsLabel, { color: theme.textSecondary }]}>{t.acceptTerms}</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                activeOpacity={0.8}
-                style={[styles.checkboxRow, { marginTop: 10 }]}
-                onPress={() => {
-                  setAcceptedPrivacy(!acceptedPrivacy);
-                  if (acceptedTerms && !acceptedPrivacy) setTermsError(false);
-                }}
-              >
-                {acceptedPrivacy ? (
-                  <CheckSquare size={18} color={theme.accent} />
-                ) : (
-                  <Square size={18} color={theme.textMuted} />
-                )}
-                <Text style={[styles.termsLabel, { color: theme.textSecondary }]}>{t.acceptPrivacy}</Text>
-              </TouchableOpacity>
-
-              {termsError && (
-                <Text style={[styles.termsErrorText, { color: theme.error }]}>{t.mustAcceptTerms}</Text>
-              )}
-            </View>
-
-            <CustomButton
-              title={t.register}
-              onPress={handleRegister}
-              isLoading={isLoading}
-              style={{ marginTop: 12 }}
-            />
-
-            {/* Login Switch */}
-            <View style={styles.footerRow}>
-              <Text style={[styles.footerText, { color: theme.textSecondary }]}>{t.alreadyHaveAccount}</Text>
-              <TouchableOpacity onPress={onNavigateToLogin} activeOpacity={0.7}>
-                <Text style={[styles.loginLink, { color: theme.accent }]}>{t.signInNow}</Text>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -339,58 +357,93 @@ export const RegisterScreen: React.FC<RegisterScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: '100%',
   },
   keyboardView: {
     flex: 1,
+    width: '100%',
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 22,
-    paddingTop: Platform.OS === 'ios' ? 60 : 44,
+    paddingHorizontal: 14,
+    paddingTop: Platform.OS === 'ios' ? 44 : 20,
     paddingBottom: 24,
-  },
-  headerBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
   },
-  backButton: {
+  responsiveWrapper: {
+    width: '100%',
+    maxWidth: 440,
+    alignSelf: 'center',
+  },
+  fullTopLeftBack: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 44 : 16,
+    left: 16,
+    zIndex: 100,
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 20,
+    paddingHorizontal: 10,
+    borderRadius: 18,
     borderWidth: 1,
   },
-  backText: {
-    fontWeight: '600',
-    fontSize: 13,
-    marginLeft: 6,
-  },
-  rightControls: {
+  fullTopRightControls: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 44 : 16,
+    right: 16,
+    zIndex: 100,
     flexDirection: 'row',
     alignItems: 'center',
   },
+  brandTitleHeader: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 16,
+    marginTop: 8,
+  },
+  backText: {
+    fontWeight: '600',
+    fontSize: 12.5,
+    marginLeft: 4,
+  },
+  brandNameText: {
+    fontSize: 24,
+    fontWeight: '800',
+    letterSpacing: -0.6,
+    textAlign: 'center',
+    fontFamily: typography.fontFamily,
+  },
   mainCard: {
-    borderRadius: 20,
-    padding: 24,
+    width: '100%',
+    borderRadius: 24,
+    paddingHorizontal: 18,
+    paddingTop: 24,
+    paddingBottom: 20,
     borderWidth: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.04,
     shadowRadius: 12,
-    elevation: 3,
+    elevation: 2,
     marginBottom: 16,
   },
+  leftTitleSection: {
+    alignItems: 'flex-start',
+    marginBottom: 18,
+  },
   createAccountTitle: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '800',
     letterSpacing: -0.5,
+    textAlign: 'left',
+    fontFamily: typography.fontFamily,
   },
   joinSubtitle: {
     fontSize: 13,
     marginTop: 4,
+    textAlign: 'left',
+    fontWeight: '400',
   },
   rowFields: {
     flexDirection: 'row',
@@ -399,15 +452,15 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
-    marginVertical: 12,
+    marginVertical: 10,
   },
   checkboxRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   termsLabel: {
-    fontSize: 13,
-    marginLeft: 10,
+    fontSize: 12,
+    marginLeft: 8,
     flex: 1,
   },
   termsErrorText: {
@@ -415,17 +468,22 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontWeight: '500',
   },
+  registerButton: {
+    marginTop: 10,
+    borderRadius: 25,
+  },
   footerRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 18,
+    flexWrap: 'wrap',
+    marginTop: 12,
   },
   footerText: {
-    fontSize: 14,
+    fontSize: 13,
   },
   loginLink: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '700',
     marginLeft: 6,
   },

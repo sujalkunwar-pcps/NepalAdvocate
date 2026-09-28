@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { User, Scale } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -17,30 +17,68 @@ export const RoleSelector: React.FC<RoleSelectorProps> = ({
   const { t } = useAuth();
 
   const isClient = selectedRole === 'CLIENT';
-  const isLawyer = selectedRole === 'LAWYER';
+  const slideAnim = useRef(new Animated.Value(isClient ? 0 : 1)).current;
+
+  useEffect(() => {
+    Animated.spring(slideAnim, {
+      toValue: isClient ? 0 : 1,
+      useNativeDriver: false,
+      friction: 8,
+      tension: 60,
+    }).start();
+  }, [isClient]);
+
+  const pillLeft = slideAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0%', '50%'],
+  });
 
   return (
     <View style={styles.container}>
       <Text style={[styles.label, { color: theme.textSecondary }]}>{t.iAmA}</Text>
-      <View style={[styles.tabsContainer, { backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }]}>
+      
+      <View
+        style={[
+          styles.track,
+          {
+            backgroundColor: theme.toggleBg,
+            borderColor: theme.cardBorder,
+          },
+        ]}
+      >
+        {/* Animated Sliding Pill */}
+        <Animated.View
+          style={[
+            styles.activePill,
+            {
+              left: pillLeft,
+              backgroundColor: theme.cardBackground,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 4,
+              elevation: 2,
+            },
+          ]}
+        />
+
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => onSelectRole('CLIENT')}
-          style={[
-            styles.tab,
-            isClient && {
-              backgroundColor: theme.roleBadgeClientBg,
-              borderColor: theme.roleBadgeClientText,
-              borderWidth: 1,
-            },
-          ]}
+          style={styles.tab}
         >
           <User
             size={16}
-            color={isClient ? theme.roleBadgeClientText : theme.textMuted}
+            color={isClient ? theme.textPrimary : theme.textMuted}
             style={styles.icon}
           />
-          <Text style={[styles.tabText, { color: isClient ? theme.roleBadgeClientText : theme.textMuted }]}>
+          <Text
+            style={[
+              styles.tabText,
+              { color: isClient ? theme.textPrimary : theme.textMuted },
+              isClient && styles.activeTabText,
+            ]}
+          >
             {t.client}
           </Text>
         </TouchableOpacity>
@@ -48,21 +86,20 @@ export const RoleSelector: React.FC<RoleSelectorProps> = ({
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => onSelectRole('LAWYER')}
-          style={[
-            styles.tab,
-            isLawyer && {
-              backgroundColor: theme.roleBadgeLawyerBg,
-              borderColor: theme.roleBadgeLawyerText,
-              borderWidth: 1,
-            },
-          ]}
+          style={styles.tab}
         >
           <Scale
             size={16}
-            color={isLawyer ? theme.roleBadgeLawyerText : theme.textMuted}
+            color={!isClient ? theme.textPrimary : theme.textMuted}
             style={styles.icon}
           />
-          <Text style={[styles.tabText, { color: isLawyer ? theme.roleBadgeLawyerText : theme.textMuted }]}>
+          <Text
+            style={[
+              styles.tabText,
+              { color: !isClient ? theme.textPrimary : theme.textMuted },
+              !isClient && styles.activeTabText,
+            ]}
+          >
             {t.lawyer}
           </Text>
         </TouchableOpacity>
@@ -76,31 +113,44 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 11.5,
+    fontWeight: '700',
     marginBottom: 8,
-    letterSpacing: 0.5,
+    letterSpacing: 0.6,
     textTransform: 'uppercase',
   },
-  tabsContainer: {
+  track: {
     flexDirection: 'row',
-    borderRadius: 12,
+    borderRadius: 25,
     padding: 3,
     borderWidth: 1,
+    position: 'relative',
+    height: 46,
+    alignItems: 'center',
+  },
+  activePill: {
+    position: 'absolute',
+    width: '50%',
+    height: 38,
+    borderRadius: 20,
+    top: 3,
   },
   tab: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
-    borderRadius: 9,
+    height: '100%',
+    zIndex: 2,
   },
   icon: {
     marginRight: 6,
   },
   tabText: {
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 13.5,
+    fontWeight: '500',
+  },
+  activeTabText: {
+    fontWeight: '700',
   },
 });

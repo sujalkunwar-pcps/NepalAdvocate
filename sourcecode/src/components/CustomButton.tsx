@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
-  TouchableOpacity,
+  Pressable,
   Text,
   StyleSheet,
   ActivityIndicator,
   ViewStyle,
   TextStyle,
+  Animated,
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 
@@ -29,83 +30,90 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
   variant = 'primary',
 }) => {
   const { theme } = useTheme();
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.96,
+      useNativeDriver: true,
+      speed: 50,
+      bounciness: 4,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+      speed: 50,
+      bounciness: 4,
+    }).start();
+  };
 
   const isOutline = variant === 'outline';
 
-  if (isOutline) {
-    return (
-      <TouchableOpacity
+  return (
+    <Animated.View style={{ transform: [{ scale: scaleAnim }], width: '100%' }}>
+      <Pressable
         onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
         disabled={disabled || isLoading}
-        activeOpacity={0.8}
-        style={[
-          styles.outlineButton,
-          { borderColor: theme.primary, backgroundColor: 'transparent' },
+        style={({ pressed }) => [
+          styles.button,
+          isOutline
+            ? {
+                backgroundColor: 'transparent',
+                borderWidth: 1.5,
+                borderColor: theme.primary,
+              }
+            : {
+                backgroundColor: disabled ? theme.textMuted : theme.primary,
+              },
           disabled && styles.disabled,
           style,
         ]}
       >
         {isLoading ? (
-          <ActivityIndicator color={theme.primary} size="small" />
+          <ActivityIndicator
+            color={isOutline ? theme.primary : theme.textInverse}
+            size="small"
+          />
         ) : (
-          <Text style={[styles.outlineText, { color: theme.primary }, textStyle]}>{title}</Text>
+          <Text
+            style={[
+              styles.text,
+              { color: isOutline ? theme.primary : theme.textInverse },
+              textStyle,
+            ]}
+          >
+            {title}
+          </Text>
         )}
-      </TouchableOpacity>
-    );
-  }
-
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      disabled={disabled || isLoading}
-      activeOpacity={0.85}
-      style={[
-        styles.button,
-        { backgroundColor: disabled ? theme.textMuted : theme.primary },
-        disabled && styles.disabled,
-        style,
-      ]}
-    >
-      {isLoading ? (
-        <ActivityIndicator color={theme.textInverse} size="small" />
-      ) : (
-        <Text style={[styles.text, { color: theme.textInverse }, textStyle]}>{title}</Text>
-      )}
-    </TouchableOpacity>
+      </Pressable>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: 12,
+    borderRadius: 25,
     paddingVertical: 14,
     paddingHorizontal: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 8,
+    marginVertical: 10,
+    width: '100%',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   text: {
     fontSize: 15,
     fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  outlineButton: {
-    borderWidth: 1.5,
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 8,
-  },
-  outlineText: {
-    fontSize: 15,
-    fontWeight: '700',
+    letterSpacing: 0.3,
   },
   disabled: {
     opacity: 0.5,
