@@ -9,15 +9,17 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { Send, Bot, User, Sparkles, Shield, AlertCircle, RefreshCw } from 'lucide-react-native';
+import { Send, Bot, User, Sparkles, Shield, AlertCircle, RefreshCw, BookOpen, UserCheck } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { typography } from '../theme/typography';
+import { apiClient } from '../services/api';
 
 interface ChatMessage {
   id: string;
   sender: 'ai' | 'user';
   text: string;
   time: string;
+  citations?: string[];
 }
 
 const INITIAL_MESSAGES: ChatMessage[] = [
@@ -42,7 +44,7 @@ export const AiChatScreen: React.FC = () => {
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
 
-  const handleSend = (textToSend?: string) => {
+  const handleSend = async (textToSend?: string) => {
     const query = textToSend || inputText;
     if (!query.trim()) return;
 
@@ -57,17 +59,39 @@ export const AiChatScreen: React.FC = () => {
     if (!textToSend) setInputText('');
     setIsTyping(true);
 
-    // Simulated AI response
+    try {
+      const response = await apiClient.post('/ai/query', {
+        question: query,
+        language: 'en',
+      });
+
+      if (response.data && response.data.success && response.data.data) {
+        const aiMsg: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          sender: 'ai',
+          text: response.data.data.answer,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          citations: response.data.data.citations,
+        };
+        setMessages((prev) => [...prev, aiMsg]);
+        setIsTyping(false);
+        return;
+      }
+    } catch (error) {
+      console.log('AI backend query offline, falling back to local corpus logic');
+    }
+
+    // Local Legal Corpus Fallback
     setTimeout(() => {
       let responseText =
-        'Under the Muluki Civil Code 2074 of Nepal, all official contracts involving transfer of property valued over Rs. 100,000 must be registered at the District Land Revenue Office (Malpot Karyalaya). Ensure you have citizenship documents and land ownership certificates (Lalpurja).';
+        'Under Section 421 of the Muluki Civil Code 2074 of Nepal, all official contracts involving transfer of property valued over Rs. 100,000 must be mandatorily registered at the District Land Revenue Office (Malpot Karyalaya). Ensure you have citizenship documents and land ownership certificates (Lalpurja).\n\n📚 Citation: Muluki Civil Code 2074 (Section 421)\n⚠️ Legal Disclaimer: This AI response is for educational reference only and does not constitute formal legal counsel.';
 
       if (query.toLowerCase().includes('company') || query.toLowerCase().includes('register')) {
         responseText =
-          'To register a Private Limited company in Nepal: 1) Reserve company name via OCR (Office of Company Registrar) portal. 2) Submit MOA & AOA drafted by a legal advocate. 3) Obtain PAN from Inland Revenue Dept.';
+          'To register a Private Limited company in Nepal under Companies Act 2063: 1) Reserve proposed company name via OCR portal. 2) Submit MOA & AOA drafted by an advocate. 3) Obtain PAN from Inland Revenue Dept.\n\n📚 Citation: Companies Act 2063 (Sections 3-5)\n⚠️ Legal Disclaimer: This AI response is for educational reference only.';
       } else if (query.toLowerCase().includes('divorce') || query.toLowerCase().includes('family')) {
         responseText =
-          'Divorce proceedings in Nepal can be initiated by either spouse at the respective District Court. Under Article 93-104 of Muluki Civil Code, mutual consent divorce takes 2-3 working days, whereas contested divorce requires judicial mediation for up to 1 year.';
+          'Divorce proceedings in Nepal can be initiated by either spouse at the respective District Court under Muluki Civil Code 2074 (Sections 93-104). Mutual consent divorce takes 2-3 working days, whereas contested divorce requires judicial mediation for up to 1 year.\n\n📚 Citation: Muluki Civil Code 2074 (Section 93)\n⚠️ Legal Disclaimer: This AI response is for educational reference only.';
       }
 
       const aiMsg: ChatMessage = {
@@ -79,7 +103,7 @@ export const AiChatScreen: React.FC = () => {
 
       setMessages((prev) => [...prev, aiMsg]);
       setIsTyping(false);
-    }, 1200);
+    }, 900);
   };
 
   return (

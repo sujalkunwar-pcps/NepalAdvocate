@@ -1,0 +1,44 @@
+{
+  "laws": [
+    {
+      "keywords": ["marriage", "marry", "age", "wedding", "husband", "wife", "spouse"],
+      "title": "Muluki Civil Code, 2074 - Provisions Relating to Marriage",
+      "content": "Section 70: Conditions for marriage: Marriage may be concluded between a man and a woman if: (a) Both have reached the age of 20 years, (b) They are not related by blood within prohibited degrees of relationship, (c) Both have given free consent. Legal minimum age for marriage under Nepalese law is strictly 20 years for both males and females; marriages below 20 are voidable and punishable under law."
+    },
+    {
+      "keywords": ["divorce", "separation", "husband", "wife", "alimony", "marital", "custody"],
+      "title": "Muluki Civil Code, 2074 - Chapter 3 (Provisions Relating to Divorce)",
+      "content": "Section 93: Divorce by mutual consent: The husband and wife may divorce their matrimonial relationship at any time by mutual consent.\nSection 94: Husband may file for divorce: The husband may file for divorce if: (a) The wife has been living separately for 3 consecutive years or more without consent, (b) The wife deprives the husband of food or expels him from the house, (c) The wife commits acts causing physical or mental pain to the husband, (d) The wife is proven to have sexual relations with another person.\nSection 95: Wife may file for divorce: The wife may file for divorce if: (a) The husband has been living separately for 3 consecutive years or more, (b) The husband deprives the wife of food or expels her from the house, (c) The husband commits acts causing physical or mental pain, (d) The husband marries another woman, (e) The husband is proven to have sexual relations with another woman, (f) The husband rapes the wife.\nSection 99: Partition of property: Except in specific fault cases, the property of the husband and wife shall be partitioned equally between them prior to divorce."
+    },
+    {
+      "keywords": ["fee", "fees", "cost", "costs", "price", "amount", "charge", "charges", "expensive", "pay"],
+      "title": "Typical Lawyer Fees and Legal Costs in Nepal (Market Standards)",
+      "content": "Divorce Lawyer Fees: Mutual divorce (by consent) typically ranges from NPR 20,000 to NPR 60,000 depending on complexity and location. Contested divorce (disputed property, custody, or alimony) typically ranges from NPR 50,000 to NPR 300,000 or more. Court filing and administrative fees are low, generally between NPR 500 and NPR 5,000. There are no statutory legal minimum or percentage requirements (like 5% or 10% of property) for divorce fees under Nepalese law; fees are determined by contract between the client and lawyer."
+    },
+    {
+      "keywords": ["company", "register", "incorporation", "registrar", "ocr", "business", "shareholder", "promoter"],
+      "title": "Companies Act, 2063 - Incorporation of Company",
+      "content": "Section 3: Incorporation of Company: Any person desiring to incorporate a company for business purposes shall submit an application to the Office of the Company Registrar (OCR) along with the Memorandum of Association (MOA) and Articles of Association (AOA).\nSection 4: Promoters and Shareholders: A private company shall have at least one promoter and a maximum of 101 shareholders. A public company shall have at least 7 promoters and no upper limit on shareholders.\nSection 5: Registration fee: Fees are based on the authorized capital of the company."
+    },
+    {
+      "keywords": ["labor", "work", "overtime", "salary", "wage", "employee", "hours", "firing", "termination"],
+      "title": "Labor Act, 2074 - Working Hours and Wages",
+      "content": "Section 28: Working Hours: Ordinary working hours shall not exceed 8 hours a day and 48 hours a week.\nSection 30: Overtime: An employee may be required to work overtime up to 4 hours a day and 24 hours a week. Overtime wages must be paid at 1.5 times the ordinary wage rate.\nSection 131: Termination: Employers may terminate employment only under specific grounds such as misconduct, medical grounds, or redundancy, following due legal procedure and notice periods."
+    },
+    {
+      "keywords": ["property", "inheritance", "partition", "land", "house", "son", "daughter", "will", "ansha"],
+      "title": "Muluki Civil Code, 2074 - Partition of Property (Ansha-Banda)",
+      "content": "Section 205: Equal Rights: The husband, wife, father, mother, son, and daughter shall be deemed to be coparceners (Anshayar) and shall have equal rights to the partition of ancestral property.\nSection 206: Partition obligation: Ancestral property must be divided equally among all coparceners. Individual self-earned property is not subject to partition.\nSection 211: Maintenance: Parents and spouses must be maintained from the ancestral property."
+    },
+    {
+      "keywords": ["crime", "criminal", "theft", "murder", "fraud", "cyber", "penalty", "penal", "imprisonment"],
+      "title": "Muluki Criminal Code, 2074 - Key Penal Provisions",
+      "content": "Section 177: Murder: Any person who intentionally causes the death of another person shall be punished with life imprisonment.\nSection 249: Cheating (Fraud): Any person who cheats or commits fraud shall be punished with imprisonment up to 7 years and a fine up to NPR 70,000.\nSection 263: Cybercrime/Computer Offence: Criminalizes unauthorized access, alteration, or destruction of computer materials, carrying penalties up to 5 years imprisonment and fines based on damage caused."
+    },
+    {
+      "keywords": ["constitution", "constitutional", "fundamental", "rights", "equality", "women", "justice", "citizenship", "remedy"],
+      "title": "Constitution of Nepal, 2072 - Part 3 (Fundamental Rights and Duties)",
+      "content": "Article 18: Right to Equality: All citizens shall be equal before law. No discrimination shall be made on grounds of origin, religion, race, gender, caste, etc. Article 20: Rights relating to Justice: Detained persons must be informed of grounds, have the right to consult a lawyer of choice, be produced before court within 24 hours, and be presumed innocent until proven guilty. Article 25: Right relating to Property: Citizens have rights to acquire, own, deal with property; acquisition by state requires public interest and compensation. Article 38: Rights of Women: Equal lineage rights, reproductive health rights, protection from violence, proportional state participation, equal family property rights. Article 46: Constitutional Remedies: Guarantees right to petition Supreme Court (Art 133) or High Court (Art 144) for enforcement of fundamental rights."
+    }
+  ]
+}

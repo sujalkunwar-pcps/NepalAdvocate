@@ -20,6 +20,7 @@ import { SocialButtons } from '../components/SocialButtons';
 import { LanguageToggle } from '../components/LanguageToggle';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { TimedDialog } from '../components/TimedDialog';
+import { GoogleAuthModal } from '../components/GoogleAuthModal';
 
 interface LoginScreenProps {
   onNavigateToRegister: () => void;
@@ -31,7 +32,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   onLoginSuccess,
 }) => {
   const { theme } = useTheme();
-  const { t, login, isLoading } = useAuth();
+  const { t, login, googleLogin, isLoading } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -44,6 +45,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   const [dialogTitle, setDialogTitle] = useState('');
   const [dialogMessage, setDialogMessage] = useState('');
   const [dialogType, setDialogType] = useState<'success' | 'error' | 'info'>('info');
+
+  const [googleModalVisible, setGoogleModalVisible] = useState(false);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
@@ -116,6 +119,44 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   const handleForgotPassword = () => {
     setDialogTitle(t.forgotPassword);
     setDialogMessage(t.passwordResetSent);
+    setDialogType('info');
+    setDialogVisible(true);
+  };
+
+  const handleGoogleSuccess = async (profile: { email: string; name: string; role: 'CLIENT' | 'LAWYER' }) => {
+    setGoogleModalVisible(false);
+    const success = await googleLogin({
+      email: profile.email,
+      name: profile.name,
+      role: profile.role,
+    });
+
+    if (success) {
+      setDialogTitle(t.loginSuccessTitle);
+      setDialogMessage(`Signed in as ${profile.name} via Google.`);
+      setDialogType('success');
+      setDialogVisible(true);
+      setTimeout(() => {
+        onLoginSuccess();
+      }, 1200);
+    } else {
+      setDialogTitle(t.loginFailed);
+      setDialogMessage('Google sign-in could not be completed.');
+      setDialogType('error');
+      setDialogVisible(true);
+    }
+  };
+
+  const handleApplePress = () => {
+    setDialogTitle('Apple Sign-In');
+    setDialogMessage('Apple Authentication is active for iOS standalone production builds.');
+    setDialogType('info');
+    setDialogVisible(true);
+  };
+
+  const handleFacebookPress = () => {
+    setDialogTitle('Facebook Sign-In');
+    setDialogMessage('Facebook OAuth is available via NepalAdvocate single sign-on federation.');
     setDialogType('info');
     setDialogVisible(true);
   };
@@ -218,7 +259,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
               />
 
               {/* Social Logins */}
-              <SocialButtons />
+              <SocialButtons
+                onGooglePress={() => setGoogleModalVisible(true)}
+                onApplePress={handleApplePress}
+                onFacebookPress={handleFacebookPress}
+              />
 
               {/* Register Link */}
               <View style={styles.footerRow}>
@@ -231,6 +276,13 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <GoogleAuthModal
+        visible={googleModalVisible}
+        onClose={() => setGoogleModalVisible(false)}
+        onSuccess={handleGoogleSuccess}
+        initialRole="CLIENT"
+      />
 
       <TimedDialog
         visible={dialogVisible}

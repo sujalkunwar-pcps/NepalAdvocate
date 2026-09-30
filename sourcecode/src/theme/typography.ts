@@ -1,13 +1,21 @@
 import { Platform } from 'react-native';
 
+const baseFont = Platform.select({
+  ios: '-apple-system',
+  android: 'sans-serif',
+  web: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif',
+  default: 'System',
+}) || 'System';
+
 export const typography = {
   // Primary Commercial Font Family (Clean, crisp, ultra-legible sans-serif)
-  fontFamily: Platform.select({
-    ios: '-apple-system',
-    android: 'sans-serif',
-    web: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif',
-    default: 'System',
-  }),
+  fontFamily: baseFont,
+
+  // Direct font aliases for convenience across components
+  regular: baseFont,
+  medium: baseFont,
+  semiBold: baseFont,
+  bold: baseFont,
 
   // Font Weights
   weights: {

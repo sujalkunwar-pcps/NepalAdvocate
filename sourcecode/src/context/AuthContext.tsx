@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User, authService, RegisterPayload, LoginPayload } from '../services/authService';
+import { User, authService, RegisterPayload, LoginPayload, GoogleAuthPayload } from '../services/authService';
 import { Language, translations } from '../l10n/translations';
 
 interface AuthContextType {
@@ -12,6 +12,7 @@ interface AuthContextType {
   toggleLanguage: () => void;
   login: (payload: LoginPayload) => Promise<boolean>;
   register: (payload: RegisterPayload) => Promise<boolean>;
+  googleLogin: (payload?: GoogleAuthPayload) => Promise<boolean>;
   logout: () => Promise<void>;
   errorMessage: string | null;
   clearError: () => void;
@@ -93,6 +94,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const googleLogin = async (payload?: GoogleAuthPayload): Promise<boolean> => {
+    try {
+      setIsLoading(true);
+      setErrorMessage(null);
+      const res = await authService.googleLogin(payload || {});
+      if (res.success && res.data) {
+        setUser(res.data.user);
+        return true;
+      }
+      setErrorMessage(res.message || 'Google sign-in failed');
+      return false;
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Google sign-in failed');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = async () => {
     setIsLoading(true);
     await authService.logout();
@@ -115,6 +135,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         toggleLanguage,
         login,
         register,
+        googleLogin,
         logout,
         errorMessage,
         clearError,

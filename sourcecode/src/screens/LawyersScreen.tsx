@@ -14,6 +14,7 @@ import { useTheme } from '../context/ThemeContext';
 import { typography } from '../theme/typography';
 import { TimedDialog } from '../components/TimedDialog';
 import { PlayfulCard } from '../components/PlayfulCard';
+import { BookAppointmentModal, LawyerInfo } from '../components/BookAppointmentModal';
 
 interface LawyerItem {
   id: string;
@@ -80,6 +81,7 @@ export const LawyersScreen: React.FC = () => {
   const [selectedSpec, setSelectedSpec] = useState('All');
   const [dialogVisible, setDialogVisible] = useState(false);
   const [selectedLawyerName, setSelectedLawyerName] = useState('');
+  const [selectedLawyerForBooking, setSelectedLawyerForBooking] = useState<LawyerItem | null>(null);
 
   const specializations = ['All', 'Corporate', 'Property', 'Criminal', 'Family', 'Tax'];
 
@@ -91,9 +93,8 @@ export const LawyersScreen: React.FC = () => {
     return matchesSearch && matchesSpec;
   });
 
-  const handleBook = (name: string) => {
-    setSelectedLawyerName(name);
-    setDialogVisible(true);
+  const handleOpenBooking = (lawyer: LawyerItem) => {
+    setSelectedLawyerForBooking(lawyer);
   };
 
   return (
@@ -212,7 +213,7 @@ export const LawyersScreen: React.FC = () => {
 
                 <TouchableOpacity
                   activeOpacity={0.85}
-                  onPress={() => handleBook(lawyer.name)}
+                  onPress={() => handleOpenBooking(lawyer)}
                   style={[styles.bookBtn, { backgroundColor: theme.primary }]}
                 >
                   <Calendar size={14} color={theme.textInverse} style={{ marginRight: 6 }} />
@@ -223,6 +224,15 @@ export const LawyersScreen: React.FC = () => {
           </PlayfulCard>
         ))}
       </ScrollView>
+
+      <BookAppointmentModal
+        visible={!!selectedLawyerForBooking}
+        lawyer={selectedLawyerForBooking}
+        onClose={() => setSelectedLawyerForBooking(null)}
+        onSuccess={(apt) => {
+          setSelectedLawyerForBooking(null);
+        }}
+      />
 
       <TimedDialog
         visible={dialogVisible}
