@@ -77,3 +77,30 @@
 ### 10. Backend Auth Endpoints ([`backend/src/services/googleAuthService.ts`](file:///c:/Users/sujal/Desktop/Final%20year%20project/backend/src/services/googleAuthService.ts) & [`backend/src/middleware/authMiddleware.ts`](file:///c:/Users/sujal/Desktop/Final%20year%20project/backend/src/middleware/authMiddleware.ts))
 - Built Google token processing and user provisioning in the backend JSON database.
 - Implemented JWT token generation and role verification middleware (`verifyToken`, `requireRole`).
+
+---
+
+## Plan for Next Week (Week 4)
+
+### Milestone: Mobile Navigation Architecture & Role-Based Dashboard Layout
+
+- [ ] **1. Tab Bar Polish & Safe Area Inset Compliance ([`BottomTabBar.tsx`](file:///c:/Users/sujal/Desktop/Final%20year%20project/sourcecode/src/components/BottomTabBar.tsx))**:
+  - Integrate dynamic safe area inset padding (`react-native-safe-area-context`) to support edge-to-edge displays on modern iOS and Android devices.
+  - Implement active tab indicator animations and contextual notification badge counters.
+
+- [ ] **2. Quick-Action Floating Dock Component (`FloatingDockNav.tsx`)**:
+  - Construct an interactive floating dock providing 1-tap shortcuts for high-frequency user actions: *AI Legal Consultation*, *Emergency Legal Aid Hotline*, and *Document Vault Upload*.
+  - Implement smooth spring animations and touch-scale micro-interactions.
+
+- [ ] **3. Role-Based Dashboard Layout ([`DashboardScreen.tsx`](file:///c:/Users/sujal/Desktop/Final%20year%20project/sourcecode/src/screens/DashboardScreen.tsx))**:
+  - Connect `user_role` state from `AuthContext` to conditionally render tailored dashboards:
+    - **Client (सेवाग्राही) View**: Case progress tracker, upcoming lawyer consultations, legal FAQ shortcuts, and statutory bookmarks.
+    - **Advocate (कानुन व्यवसायी) View**: Client consultation requests queue, calendar schedule, billable hour metrics, and Nepal Bar Council verification badge.
+
+- [ ] **4. User Profile & Credential Header ([`ProfileHeaderCard.tsx`](file:///c:/Users/sujal/Desktop/Final%20year%20project/sourcecode/src/components/ProfileHeaderCard.tsx))**:
+  - Build profile card displaying user avatar, verified role chip, Bar Council license ID (`NBA-XXXX`), and inline settings shortcuts (dark/light theme toggle, Devanagari/English switch).
+
+- [ ] **5. Navigation State Persistence & Viewport Audit**:
+  - Preserve active navigation tab index across app backgrounding/re-entry.
+  - Verify layout responsiveness across 18:9, 19.5:9, and 20:9 screen aspect ratios.
+
