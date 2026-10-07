@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { Platform } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
-import { GOOGLE_CONFIG, getGoogleClientId, getRedirectUri } from '../config/authConfig';
+import { GOOGLE_CONFIG, getGoogleClientId, getRedirectUri, getReturnUrl } from '../config/authConfig';
 import { useAuth } from '../context/AuthContext';
 
 // Ensure web auth redirects & popups complete cleanly
@@ -37,6 +38,7 @@ export const useGoogleAuth = (onSuccess?: () => void): GoogleAuthResult => {
 
   const clientId = getGoogleClientId();
   const redirectUri = getRedirectUri();
+  const returnUrl = getReturnUrl();
 
   /**
    * Launch real Google authentication in system browser
@@ -45,7 +47,10 @@ export const useGoogleAuth = (onSuccess?: () => void): GoogleAuthResult => {
   const getGoogleProfileFromOAuth = async (): Promise<GoogleProfileResult | null> => {
     setIsAuthenticating(true);
     try {
-      const authUrl =
+      const isWeb = Platform.OS === 'web';
+
+      // 1. Core Google OAuth 2.0 authorization endpoint
+      const googleAuthUrl =
         `${GOOGLE_CONFIG.discovery.authorizationEndpoint}?` +
         `client_id=${encodeURIComponent(clientId)}&` +
         `redirect_uri=${encodeURIComponent(redirectUri)}&` +
@@ -54,18 +59,49 @@ export const useGoogleAuth = (onSuccess?: () => void): GoogleAuthResult => {
         `nonce=${Date.now()}&` +
         `prompt=select_account`;
 
-      const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
+      let startUrl = googleAuthUrl;
+      let sessionReturnUrl = redirectUri;
+
+      if (!isWeb) {
+        // In Expo Go on mobile (iOS/Android), the Expo auth proxy (auth.expo.io) requires
+        // initializing the session at the `/start` endpoint with `authUrl` and `returnUrl`.
+        // This sets the necessary session cookie on auth.expo.io so that when Google redirects back,
+        // auth.expo.io can forward the tokens directly to the app at `returnUrl`.
+        // Direct calls without `/start` trigger:
+        // "Something went wrong trying to finish signing in. Please close this screen to go back to the app."
+        const startParams = new URLSearchParams({
+          authUrl: googleAuthUrl,
+          returnUrl: returnUrl,
+        });
+        startUrl = `${redirectUri}/start?${startParams.toString()}`;
+        sessionReturnUrl = returnUrl;
+      }
+
+      const result = await WebBrowser.openAuthSessionAsync(startUrl, sessionReturnUrl);
 
       if (result.type !== 'success' || !result.url) {
         setIsAuthenticating(false);
         return null;
       }
 
-      const hash = result.url.split('#')[1];
-      const query = result.url.split('?')[1];
-      const params = new URLSearchParams(hash || query || '');
-      const accessToken = params.get('access_token');
-      const idToken = params.get('id_token');
+      // Check for error codes in query params
+      const fullUrl = result.url;
+      const queryPart = fullUrl.includes('?') ? fullUrl.split('?')[1].split('#')[0] : '';
+      const hashPart = fullUrl.includes('#') ? fullUrl.split('#')[1] : '';
+
+      const searchParams = new URLSearchParams(queryPart);
+      const hashParams = new URLSearchParams(hashPart);
+
+      const errorCode = searchParams.get('errorCode') || searchParams.get('error') || hashParams.get('error');
+      if (errorCode) {
+        setIsAuthenticating(false);
+        console.warn('Google Auth returned error code:', errorCode);
+        return null;
+      }
+
+      const accessToken = hashParams.get('access_token') || searchParams.get('access_token');
+      const idToken = hashParams.get('id_token') || searchParams.get('id_token');
+
 
       let profile: { email: string; name: string; avatar?: string } | null = null;
 

@@ -49,7 +49,9 @@ export const getGoogleClientId = (): string => {
 };
 
 /**
- * Generate standard redirect URI
+ * The redirect URI configured with Google Cloud Console:
+ * - Web: http://localhost:8081
+ * - Mobile Expo Go: https://auth.expo.io/@suzza/nepal-advocate
  */
 export const getRedirectUri = (): string => {
   if (Platform.OS === 'web') {
@@ -59,3 +61,23 @@ export const getRedirectUri = (): string => {
   }
   return 'https://auth.expo.io/@suzza/nepal-advocate';
 };
+
+/**
+ * The return URI where the mobile browser redirects back into the Expo Go app.
+ * In Expo Go, this resolves to exp://<host>:8081/--/expo-auth-session
+ */
+export const getReturnUrl = (): string => {
+  if (Platform.OS === 'web') {
+    return AuthSession.makeRedirectUri({
+      preferLocalhost: true,
+    });
+  }
+  try {
+    return AuthSession.getDefaultReturnUrl();
+  } catch {
+    return AuthSession.makeRedirectUri({
+      preferLocalhost: false,
+    });
+  }
+};
+
