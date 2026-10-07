@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,12 +13,21 @@ import {
 import Svg, { Path } from 'react-native-svg';
 import { useTheme } from '../context/ThemeContext';
 import { typography } from '../theme/typography';
-import { Check, X, Shield, User, Briefcase } from 'lucide-react-native';
+import { Check, X, Shield } from 'lucide-react-native';
 
-interface GoogleAuthModalProps {
+export interface GoogleAuthModalProps {
   visible: boolean;
   onClose: () => void;
-  onSuccess: (profile: { email: string; name: string; role: 'CLIENT' | 'LAWYER' }) => void;
+  onSuccess: (profile: {
+    email: string;
+    name: string;
+    avatar?: string;
+    role?: 'CLIENT' | 'LAWYER';
+    barLicenseNumber?: string;
+    specialization?: string;
+    experience?: number;
+    officeLocation?: string;
+  }) => void;
   initialRole?: 'CLIENT' | 'LAWYER';
 }
 
@@ -50,18 +59,29 @@ export const GoogleAuthModal: React.FC<GoogleAuthModalProps> = ({
   initialRole = 'CLIENT',
 }) => {
   const { theme } = useTheme();
-  const [selectedRole, setSelectedRole] = useState<'CLIENT' | 'LAWYER'>(initialRole);
   const [selectedAccountIndex, setSelectedAccountIndex] = useState(0);
   const [customEmail, setCustomEmail] = useState('');
   const [customName, setCustomName] = useState('');
   const [showCustom, setShowCustom] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
+  useEffect(() => {
+    if (visible) {
+      setSelectedAccountIndex(0);
+      setShowCustom(false);
+    }
+  }, [visible, initialRole]);
+
   const googleAccounts = [
     {
       name: 'Sujal Kunwar',
-      email: 'sujalkunwar@gmail.com',
+      email: 'sujalkunwar22@gmail.com',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200',
+    },
+    {
+      name: 'Adv. Bikram Thapa',
+      email: 'bikram.thapa@nepaladvocate.com',
+      avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=200',
     },
     {
       name: 'Aarav Sharma',
@@ -75,19 +95,26 @@ export const GoogleAuthModal: React.FC<GoogleAuthModalProps> = ({
     setTimeout(() => {
       let chosenEmail = googleAccounts[selectedAccountIndex].email;
       let chosenName = googleAccounts[selectedAccountIndex].name;
+      let chosenAvatar = googleAccounts[selectedAccountIndex].avatar;
 
       if (showCustom && customEmail.trim()) {
         chosenEmail = customEmail.trim();
         chosenName = customName.trim() || 'Google User';
+        chosenAvatar = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200';
       }
 
       setIsAuthenticating(false);
       onSuccess({
         email: chosenEmail,
         name: chosenName,
-        role: selectedRole,
+        avatar: chosenAvatar,
+        role: initialRole,
+        barLicenseNumber: initialRole === 'LAWYER' ? 'NBA-5421' : undefined,
+        specialization: initialRole === 'LAWYER' ? 'Corporate & Civil Law' : undefined,
+        experience: initialRole === 'LAWYER' ? 5 : undefined,
+        officeLocation: initialRole === 'LAWYER' ? 'Kathmandu, Nepal' : undefined,
       });
-    }, 700);
+    }, 500);
   };
 
   return (
@@ -115,56 +142,6 @@ export const GoogleAuthModal: React.FC<GoogleAuthModalProps> = ({
           <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
             Choose an account to continue to <Text style={{ fontWeight: '700', color: theme.textPrimary }}>NepalAdvocate</Text>
           </Text>
-
-          {/* Role Selection */}
-          <Text style={[styles.label, { color: theme.textSecondary }]}>SELECT ROLE</Text>
-          <View style={styles.roleRow}>
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => setSelectedRole('CLIENT')}
-              style={[
-                styles.roleOption,
-                {
-                  borderColor: selectedRole === 'CLIENT' ? theme.primary : theme.cardBorder,
-                  backgroundColor: selectedRole === 'CLIENT' ? theme.primary + '15' : 'transparent',
-                },
-              ]}
-            >
-              <User size={16} color={selectedRole === 'CLIENT' ? theme.primary : theme.textSecondary} />
-              <Text
-                style={[
-                  styles.roleText,
-                  { color: selectedRole === 'CLIENT' ? theme.primary : theme.textSecondary },
-                  selectedRole === 'CLIENT' && { fontWeight: '700' },
-                ]}
-              >
-                Client
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => setSelectedRole('LAWYER')}
-              style={[
-                styles.roleOption,
-                {
-                  borderColor: selectedRole === 'LAWYER' ? theme.primary : theme.cardBorder,
-                  backgroundColor: selectedRole === 'LAWYER' ? theme.primary + '15' : 'transparent',
-                },
-              ]}
-            >
-              <Briefcase size={16} color={selectedRole === 'LAWYER' ? theme.primary : theme.textSecondary} />
-              <Text
-                style={[
-                  styles.roleText,
-                  { color: selectedRole === 'LAWYER' ? theme.primary : theme.textSecondary },
-                  selectedRole === 'LAWYER' && { fontWeight: '700' },
-                ]}
-              >
-                Advocate
-              </Text>
-            </TouchableOpacity>
-          </View>
 
           {/* Google Accounts List */}
           <View style={styles.accountsList}>
@@ -237,10 +214,10 @@ export const GoogleAuthModal: React.FC<GoogleAuthModalProps> = ({
                   ]}
                   placeholder="Google Email (e.g. name@gmail.com)"
                   placeholderTextColor={theme.textMuted}
-                  value={customEmail}
-                  onChangeText={setCustomEmail}
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  value={customEmail}
+                  onChangeText={setCustomEmail}
                 />
                 <TouchableOpacity
                   activeOpacity={0.7}
@@ -280,9 +257,9 @@ export const GoogleAuthModal: React.FC<GoogleAuthModalProps> = ({
               style={[styles.confirmBtn, { backgroundColor: theme.primary }]}
             >
               {isAuthenticating ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
+                <ActivityIndicator size="small" color={theme.textInverse} />
               ) : (
-                <Text style={styles.confirmText}>Continue with Google</Text>
+                <Text style={[styles.confirmText, { color: theme.textInverse }]}>Continue with Google</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -335,31 +312,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginBottom: 16,
     fontFamily: typography.regular,
-  },
-  label: {
-    fontSize: 11,
-    letterSpacing: 0.8,
-    fontWeight: '700',
-    marginBottom: 8,
-  },
-  roleRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 16,
-  },
-  roleOption: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 10,
-    borderRadius: 10,
-    borderWidth: 1.5,
-  },
-  roleText: {
-    fontSize: 13,
-    fontFamily: typography.medium,
   },
   accountsList: {
     marginBottom: 16,
@@ -459,3 +411,5 @@ const styles = StyleSheet.create({
     fontFamily: typography.semiBold,
   },
 });
+
+export default GoogleAuthModal;

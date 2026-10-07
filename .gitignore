@@ -29,3 +29,20 @@ Thumbs.db
 # Build Artifacts
 build/
 *.log
+dist-ios/
+sourcecode/dist-ios/
+
+# Binaries & Installers
+*.exe
+*.msi
+
+# Credentials & Secrets
+client_secret_*.json
+backend/client_secret_*.json
+
+# Progress Reports
+WEEKLY_PROGRESS_REPORTS.md
+WEEK_4_PROGRESS_REPORT.md
+*REPORT*.md
+*REPORTS*.md
+

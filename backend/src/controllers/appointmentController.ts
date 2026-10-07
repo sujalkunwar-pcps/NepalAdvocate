@@ -69,3 +69,38 @@ export const getMyAppointments = async (req: AuthenticatedRequest, res: Response
     });
   }
 };
+
+export const updateAppointmentStatus = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status, date, timeSlot, notes } = req.body;
+
+    const apt = db.findAppointmentById(id);
+    if (!apt) {
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found.',
+      });
+    }
+
+    const updates: Partial<AppointmentRecord> = {};
+    if (status) updates.status = status;
+    if (date) updates.date = date;
+    if (timeSlot) updates.timeSlot = timeSlot;
+    if (notes) updates.notes = notes;
+
+    const updated = db.updateAppointment(id, updates);
+
+    return res.json({
+      success: true,
+      message: 'Appointment updated successfully.',
+      data: updated,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to update appointment.',
+    });
+  }
+};
+

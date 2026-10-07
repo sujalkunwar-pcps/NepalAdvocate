@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Calendar, Clock, ArrowRight, UserCheck } from 'lucide-react-native';
+import { Calendar, Clock, ArrowRight, UserCheck, MessageSquare, Phone, Video } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { AppointmentData } from '../types/dashboard';
 import { PlayfulCard } from './PlayfulCard';
@@ -9,12 +9,14 @@ interface AppointmentListCardProps {
   appointments: AppointmentData[];
   onViewAll?: () => void;
   onSelectAppointment?: (apt: AppointmentData) => void;
+  onCommunicate?: (apt: AppointmentData, mode: 'chat' | 'audio' | 'video') => void;
 }
 
 export const AppointmentListCard: React.FC<AppointmentListCardProps> = ({
   appointments,
   onViewAll,
   onSelectAppointment,
+  onCommunicate,
 }) => {
   const { theme } = useTheme();
 
@@ -49,9 +51,7 @@ export const AppointmentListCard: React.FC<AppointmentListCardProps> = ({
       ) : (
         appointments.map((apt, idx) => (
           <PlayfulCard key={apt.id} delay={240 + idx * 60}>
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => onSelectAppointment && onSelectAppointment(apt)}
+            <View
               style={[
                 styles.itemCard,
                 {
@@ -60,55 +60,91 @@ export const AppointmentListCard: React.FC<AppointmentListCardProps> = ({
                 },
               ]}
             >
-              <View style={styles.topRow}>
-                <View style={styles.lawyerGroup}>
-                  <View style={[styles.iconBox, { backgroundColor: theme.toggleBg }]}>
-                    <UserCheck size={18} color={theme.textPrimary} />
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => onSelectAppointment && onSelectAppointment(apt)}
+              >
+                <View style={styles.topRow}>
+                  <View style={styles.lawyerGroup}>
+                    <View style={[styles.iconBox, { backgroundColor: theme.toggleBg }]}>
+                      <UserCheck size={18} color={theme.textPrimary} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.lawyerName, { color: theme.textPrimary }]}>
+                        {apt.lawyerName}
+                      </Text>
+                      <Text style={[styles.specText, { color: theme.textSecondary }]}>
+                        {apt.specialization}
+                      </Text>
+                    </View>
                   </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.lawyerName, { color: theme.textPrimary }]}>
-                      {apt.lawyerName}
-                    </Text>
-                    <Text style={[styles.specText, { color: theme.textSecondary }]}>
-                      {apt.specialization}
-                    </Text>
-                  </View>
-                </View>
 
-                <View
-                  style={[
-                    styles.statusBadge,
-                    { backgroundColor: apt.status === 'UPCOMING' ? '#FEF3C7' : '#D1FAE5' },
-                  ]}
-                >
-                  <Text
+                  <View
                     style={[
-                      styles.statusText,
-                      { color: apt.status === 'UPCOMING' ? '#D97706' : '#059669' },
+                      styles.statusBadge,
+                      { backgroundColor: apt.status === 'UPCOMING' ? '#FEF3C7' : '#D1FAE5' },
                     ]}
                   >
-                    {apt.status}
-                  </Text>
-                </View>
-              </View>
-
-              <View style={[styles.cardDivider, { backgroundColor: theme.cardBorder }]} />
-
-              <View style={styles.bottomRow}>
-                <View style={styles.timeInfo}>
-                  <Calendar size={13} color={theme.textMuted} />
-                  <Text style={[styles.timeText, { color: theme.textSecondary }]}>{apt.date}</Text>
-                  <Clock size={13} color={theme.textMuted} style={{ marginLeft: 10 }} />
-                  <Text style={[styles.timeText, { color: theme.textSecondary }]}>
-                    {apt.timeSlot}
-                  </Text>
+                    <Text
+                      style={[
+                        styles.statusText,
+                        { color: apt.status === 'UPCOMING' ? '#D97706' : '#059669' },
+                      ]}
+                    >
+                      {apt.status}
+                    </Text>
+                  </View>
                 </View>
 
-                <Text style={[styles.feeText, { color: theme.textPrimary }]}>
-                  Rs. {apt.fee.toLocaleString()}
-                </Text>
-              </View>
-            </TouchableOpacity>
+                <View style={[styles.cardDivider, { backgroundColor: theme.cardBorder }]} />
+
+                <View style={styles.bottomRow}>
+                  <View style={styles.timeInfo}>
+                    <Calendar size={13} color={theme.textMuted} />
+                    <Text style={[styles.timeText, { color: theme.textSecondary }]}>{apt.date}</Text>
+                    <Clock size={13} color={theme.textMuted} style={{ marginLeft: 10 }} />
+                    <Text style={[styles.timeText, { color: theme.textSecondary }]}>
+                      {apt.timeSlot}
+                    </Text>
+                  </View>
+
+                  <Text style={[styles.feeText, { color: theme.textPrimary }]}>
+                    Rs. {apt.fee.toLocaleString()}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {onCommunicate && (
+                <View style={[styles.commRow, { borderTopColor: theme.cardBorder }]}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => onCommunicate(apt, 'chat')}
+                    style={[styles.commBtn, { backgroundColor: '#2563EB' }]}
+                  >
+                    <MessageSquare size={13} color="#FFFFFF" style={{ marginRight: 5 }} />
+                    <Text style={styles.commBtnText}>Message</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => onCommunicate(apt, 'audio')}
+                    style={[styles.commBtn, { backgroundColor: '#10B981' }]}
+                  >
+                    <Phone size={13} color="#FFFFFF" style={{ marginRight: 5 }} />
+                    <Text style={styles.commBtnText}>Audio Call</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => onCommunicate(apt, 'video')}
+                    style={[styles.commBtn, { backgroundColor: '#8B5CF6' }]}
+                  >
+                    <Video size={13} color="#FFFFFF" style={{ marginRight: 5 }} />
+                    <Text style={styles.commBtnText}>Video Call</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
           </PlayfulCard>
         ))
       )}
@@ -218,5 +254,25 @@ const styles = StyleSheet.create({
   feeText: {
     fontSize: 13.5,
     fontWeight: '800',
+  },
+  commRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+  },
+  commBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    borderRadius: 10,
+  },
+  commBtnText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
   },
 });

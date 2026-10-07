@@ -1,6 +1,7 @@
 import React from 'react';
-import { Home, Scale, Bot, FileText, User } from 'lucide-react-native';
+import { Home, Scale, Bot, FileText, User, Users } from 'lucide-react-native';
 import { FloatingDockNav, NavItem } from './ui/floating-dock-navigation';
+import { useAuth } from '../context/AuthContext';
 
 export type TabKey = 'home' | 'lawyers' | 'ai' | 'documents' | 'profile';
 
@@ -13,6 +14,9 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
   activeTab,
   onSelectTab,
 }) => {
+  const { user } = useAuth();
+  const isLawyer = user?.role === 'LAWYER';
+
   const tabs: NavItem[] = [
     {
       key: 'home',
@@ -21,8 +25,8 @@ export const BottomTabBar: React.FC<BottomTabBarProps> = ({
     },
     {
       key: 'lawyers',
-      label: 'Lawyers',
-      icon: <Scale size={20} />,
+      label: isLawyer ? 'Clients' : 'Lawyers',
+      icon: isLawyer ? <Users size={20} /> : <Scale size={20} />,
     },
     {
       key: 'ai',

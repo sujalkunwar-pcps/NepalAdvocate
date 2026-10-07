@@ -5,19 +5,24 @@
   "dependencies": {
     "@expo/metro-runtime": "^57.0.16",
     "@playwright/test": "^1.63.0",
-    "@react-native-async-storage/async-storage": "^3.1.1",
+    "@react-native-async-storage/async-storage": "2.2.0",
     "axios": "^1.20.0",
-    "expo": "~57.0.24",
+    "expo": "~57.0.26",
+    "expo-auth-session": "~57.0.13",
     "expo-blur": "^57.0.3",
+    "expo-constants": "~57.0.20",
+    "expo-crypto": "~57.0.3",
     "expo-linear-gradient": "^57.0.2",
+    "expo-local-authentication": "^57.0.3",
     "expo-status-bar": "~57.0.1",
+    "expo-web-browser": "~57.0.3",
     "lucide-react-native": "^1.47.0",
     "playwright": "^1.63.0",
     "react": "19.2.3",
     "react-dom": "^19.2.3",
     "react-native": "0.86.3",
-    "react-native-safe-area-context": "^5.10.0",
-    "react-native-svg": "^15.15.5",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-svg": "15.15.4",
     "react-native-web": "^0.21.2"
   },
   "devDependencies": {
@@ -28,7 +33,11 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "bundle:ios": "node scripts/build-ios-bundle.js",
+    "bundle:ios:source": "expo export -p ios --no-bytecode",
+    "bundle:ios:dev": "expo export -p ios --dev",
+    "bundle:all": "expo export"
   },
   "private": true
 }

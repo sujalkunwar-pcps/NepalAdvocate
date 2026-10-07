@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Platform,
   useWindowDimensions,
   PanResponder,
+  Keyboard,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Home, Search, Bell, User, Settings, Mail } from 'lucide-react-native';
@@ -37,6 +38,20 @@ export const FloatingDockNav: React.FC<FloatingDockNavProps> = ({
 
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [activeIndex, setActiveIndex] = useState<number>(0);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, () => setIsKeyboardVisible(true));
+    const hideSub = Keyboard.addListener(hideEvent, () => setIsKeyboardVisible(false));
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   const defaultNavItems: NavItem[] = [
     { icon: <Home size={18} color={theme.textPrimary} />, label: 'Home', key: 'home' },
@@ -132,6 +147,10 @@ export const FloatingDockNav: React.FC<FloatingDockNavProps> = ({
   };
 
   const bottomInset = Math.max(insets.bottom + 8, Platform.OS === 'ios' ? 24 : 14);
+
+  if (isKeyboardVisible) {
+    return null;
+  }
 
   return (
     <View

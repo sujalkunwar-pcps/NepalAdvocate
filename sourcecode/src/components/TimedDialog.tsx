@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { CheckCircle2, AlertCircle } from 'lucide-react-native';
+import { CheckCircle2, AlertCircle, Info } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -35,7 +35,17 @@ export const TimedDialog: React.FC<TimedDialogProps> = ({
 
   if (!visible) return null;
 
-  const isSuccess = type === 'success';
+  const renderIcon = () => {
+    if (type === 'success') {
+      return <CheckCircle2 size={38} color={theme.success || '#10B981'} />;
+    }
+    if (type === 'error') {
+      return <AlertCircle size={38} color={theme.error || '#EF4444'} />;
+    }
+    return <Info size={38} color={theme.primary} />;
+  };
+
+  const buttonBg = type === 'success' ? (theme.success || '#10B981') : theme.primary;
 
   return (
     <Modal
@@ -47,11 +57,7 @@ export const TimedDialog: React.FC<TimedDialogProps> = ({
       <View style={styles.overlay}>
         <View style={[styles.dialogCard, { backgroundColor: theme.cardBackground, borderColor: theme.cardBorder }]}>
           <View style={styles.iconContainer}>
-            {isSuccess ? (
-              <CheckCircle2 size={38} color={theme.success} />
-            ) : (
-              <AlertCircle size={38} color={theme.error} />
-            )}
+            {renderIcon()}
           </View>
 
           <Text style={[styles.title, { color: theme.textPrimary }]}>{title}</Text>
@@ -61,7 +67,7 @@ export const TimedDialog: React.FC<TimedDialogProps> = ({
             activeOpacity={0.8}
             style={[
               styles.button,
-              { backgroundColor: isSuccess ? theme.success : theme.primary },
+              { backgroundColor: buttonBg },
             ]}
             onPress={onDismiss}
           >

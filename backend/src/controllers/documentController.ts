@@ -7,12 +7,9 @@ export const getMyDocuments = async (req: AuthenticatedRequest, res: Response) =
     const user = req.user!;
     const userDocs = db.findDocumentsByUserId(user.id);
 
-    // If new user with no documents yet, provide the standard verified legal templates
-    const initialDocs = userDocs.length > 0 ? userDocs : db.documents;
-
     return res.json({
       success: true,
-      data: initialDocs,
+      data: userDocs,
     });
   } catch (error: any) {
     return res.status(500).json({

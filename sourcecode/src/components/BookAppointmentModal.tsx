@@ -70,6 +70,10 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
   const tax = Math.round(fee * 0.13); // 13% VAT
   const total = fee + tax;
 
+  const isDark = theme.mode === 'dark';
+  const selectedPillBg = isDark ? '#1D4ED8' : '#0F172A';
+  const selectedPillBorder = isDark ? '#60A5FA' : '#0F172A';
+
   const handleConfirmBooking = async () => {
     setIsSubmitting(true);
     const chosenDate = dates[selectedDateIndex].date;
@@ -136,7 +140,7 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
               </Text>
               <View style={[styles.bookingRefCard, { backgroundColor: theme.background, borderColor: theme.cardBorder }]}>
                 <Text style={[styles.refLabel, { color: theme.textMuted }]}>BOOKING REFERENCE</Text>
-                <Text style={[styles.refValue, { color: theme.primary }]}>{bookingRef}</Text>
+                <Text style={[styles.refValue, { color: isDark ? '#60A5FA' : theme.primary }]}>{bookingRef}</Text>
                 <Text style={[styles.refDate, { color: theme.textSecondary }]}>
                   📅 {dates[selectedDateIndex].date} at {timeSlots[selectedTimeSlotIndex]}
                 </Text>
@@ -144,7 +148,7 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={handleModalClose}
-                style={[styles.closeSuccessBtn, { backgroundColor: theme.primary }]}
+                style={[styles.closeSuccessBtn, { backgroundColor: isDark ? '#2563EB' : theme.primary }]}
               >
                 <Text style={styles.closeSuccessText}>Done</Text>
               </TouchableOpacity>
@@ -196,8 +200,8 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
                       style={[
                         styles.datePill,
                         {
-                          backgroundColor: isSelected ? theme.primary : theme.background,
-                          borderColor: isSelected ? theme.primary : theme.cardBorder,
+                          backgroundColor: isSelected ? selectedPillBg : theme.background,
+                          borderColor: isSelected ? selectedPillBorder : theme.cardBorder,
                         },
                       ]}
                     >
@@ -213,7 +217,7 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
                       <Text
                         style={[
                           styles.dateSub,
-                          { color: isSelected ? '#FFFFFF' : theme.textMuted },
+                          { color: isSelected ? (isDark ? '#DBEAFE' : 'rgba(255,255,255,0.85)') : theme.textMuted },
                         ]}
                       >
                         {d.date.split(',')[0]}
@@ -238,8 +242,8 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
                       style={[
                         styles.timeSlotPill,
                         {
-                          backgroundColor: isSelected ? theme.primary : theme.background,
-                          borderColor: isSelected ? theme.primary : theme.cardBorder,
+                          backgroundColor: isSelected ? selectedPillBg : theme.background,
+                          borderColor: isSelected ? selectedPillBorder : theme.cardBorder,
                         },
                       ]}
                     >
@@ -248,7 +252,7 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
                         style={[
                           styles.timeText,
                           { color: isSelected ? '#FFFFFF' : theme.textPrimary },
-                          isSelected && { fontWeight: '600' },
+                          isSelected && { fontWeight: '700' },
                         ]}
                       >
                         {slot}
@@ -348,7 +352,7 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
                 activeOpacity={0.8}
                 onPress={handleConfirmBooking}
                 disabled={isSubmitting}
-                style={[styles.submitBtn, { backgroundColor: theme.primary }]}
+                style={[styles.submitBtn, { backgroundColor: isDark ? '#2563EB' : theme.primary }]}
               >
                 {isSubmitting ? (
                   <ActivityIndicator size="small" color="#FFFFFF" />

@@ -22,6 +22,7 @@ export interface LawyerRecord {
   name: string;
   specialization: string;
   barNumber: string;
+  barLicenseNumber?: string;
   rating: number;
   experience: number;
   hourlyRate: number;
@@ -42,7 +43,7 @@ export interface AppointmentRecord {
   specialization: string;
   date: string;
   timeSlot: string;
-  status: 'UPCOMING' | 'COMPLETED' | 'CANCELLED';
+  status: 'UPCOMING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
   fee: number;
   notes?: string;
   paymentMethod: 'KHALTI' | 'ESEWA' | 'CASH';
@@ -88,48 +89,10 @@ const DB_FILE = path.join(DB_DIR, 'database.json');
 const defaultHashedPassword = bcrypt.hashSync('password123', 10);
 
 const SEED_DATA: DatabaseSchema = {
-  users: [
-    {
-      id: 'usr_101',
-      email: 'client@nepaladvocate.com',
-      password: defaultHashedPassword,
-      firstName: 'Aarav',
-      lastName: 'Sharma',
-      role: 'CLIENT',
-      phone: '+977 9841234567',
-      profilePicture: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
-      isActive: true,
-      createdAt: '2025-01-15T08:00:00.000Z',
-    },
-    {
-      id: 'usr_102',
-      email: 'bikram.thapa@nepaladvocate.com',
-      password: defaultHashedPassword,
-      firstName: 'Bikram',
-      lastName: 'Thapa',
-      role: 'LAWYER',
-      phone: '+977 9851098765',
-      profilePicture: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400',
-      isActive: true,
-      createdAt: '2025-01-20T08:00:00.000Z',
-    },
-    {
-      id: 'usr_103',
-      email: 'sujalkunwar@nepaladvocate.com',
-      password: defaultHashedPassword,
-      firstName: 'Sujal',
-      lastName: 'Kunwar',
-      role: 'CLIENT',
-      phone: '+977 9801234567',
-      profilePicture: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=400',
-      isActive: true,
-      createdAt: '2025-02-01T08:00:00.000Z',
-    },
-  ],
+  users: [],
   lawyers: [
     {
       id: 'law_01',
-      userId: 'usr_102',
       name: 'Adv. Bikram Thapa',
       specialization: 'Corporate & Tax Law',
       barNumber: 'NBA-5421',
@@ -204,98 +167,9 @@ const SEED_DATA: DatabaseSchema = {
       email: 'dipesh.regmi@nepaladvocate.com',
     },
   ],
-  appointments: [
-    {
-      id: 'apt_01',
-      clientId: 'usr_101',
-      clientName: 'Aarav Sharma',
-      lawyerId: 'law_01',
-      lawyerName: 'Adv. Bikram Thapa',
-      specialization: 'Corporate & Tax Law',
-      date: 'Oct 05, 2026',
-      timeSlot: '10:30 AM - 11:30 AM',
-      status: 'UPCOMING',
-      fee: 2500,
-      notes: 'Consultation regarding business registration and IP filing in Nepal.',
-      paymentMethod: 'ESEWA',
-      paymentStatus: 'PAID',
-      createdAt: '2026-09-28T10:00:00.000Z',
-    },
-    {
-      id: 'apt_02',
-      clientId: 'usr_101',
-      clientName: 'Aarav Sharma',
-      lawyerId: 'law_02',
-      lawyerName: 'Adv. Sunita Shrestha',
-      specialization: 'Property & Civil Law',
-      date: 'Oct 08, 2026',
-      timeSlot: '02:00 PM - 03:00 PM',
-      status: 'UPCOMING',
-      fee: 3000,
-      notes: 'Land ownership deed verification and boundary dispute review.',
-      paymentMethod: 'KHALTI',
-      paymentStatus: 'PAID',
-      createdAt: '2026-09-29T14:30:00.000Z',
-    },
-  ],
-  documents: [
-    {
-      id: 'doc_101',
-      userId: 'usr_101',
-      title: 'Commercial Lease Agreement 2026',
-      titleNepali: 'व्यापारिक भाडा सम्झौता २०८३',
-      category: 'Contracts',
-      fileSize: '1.8 MB',
-      status: 'VERIFIED',
-      updatedAt: 'Sep 28, 2026',
-      contentSnippet: 'Standard registered lease between commercial landlord and lessee adhering to Chapter 9 of Muluki Civil Code 2074.',
-    },
-    {
-      id: 'doc_102',
-      userId: 'usr_101',
-      title: 'Company Articles of Association (Draft)',
-      titleNepali: 'कम्पनी प्रबन्धपत्र तथा नियमावली मस्यौदा',
-      category: 'Contracts',
-      fileSize: '850 KB',
-      status: 'DRAFT',
-      updatedAt: 'Sep 25, 2026',
-      contentSnippet: 'Drafted Memorandum & Articles of Association for private tech startup registering under Company Act 2063.',
-    },
-    {
-      id: 'doc_103',
-      userId: 'usr_101',
-      title: 'Power of Attorney Deed (Warisnama)',
-      titleNepali: 'अधिकृत वारिसनामा लिखत',
-      category: 'Court Forms',
-      fileSize: '2.4 MB',
-      status: 'VERIFIED',
-      updatedAt: 'Sep 20, 2026',
-      contentSnippet: 'Notarized Warisnama authorization for court proceedings in Kathmandu District Court under Muluki Civil Procedure Code.',
-    },
-    {
-      id: 'doc_104',
-      userId: 'usr_101',
-      title: 'Land Ownership Certificate (Lalpurja Copy)',
-      titleNepali: 'जग्गाधनी प्रमाण पुर्जा (लालपुर्जा प्रतिलिपि)',
-      category: 'Identity',
-      fileSize: '3.1 MB',
-      status: 'ENCRYPTED',
-      updatedAt: 'Sep 15, 2026',
-      contentSnippet: 'High-resolution scan of Lalpurja plot #402, Ward 4, Budhanilkantha, Kathmandu.',
-    },
-  ],
-  aiQueries: [
-    {
-      id: 'q_01',
-      userId: 'usr_101',
-      question: 'What are the legal requirements to register a Pvt Ltd company in Nepal?',
-      response: 'To incorporate a Private Limited company in Nepal under the Companies Act 2063: 1) Reserve proposed name at Office of Company Registrar (OCR). 2) Draft Memorandum of Association (MOA) and Articles of Association (AOA). 3) Submit founder citizenship documents and registered office address. 4) Obtain Certificate of Incorporation and register PAN with Inland Revenue Department.',
-      citations: ['Companies Act 2063 (Section 3, 4, 5)', 'Department of Industry Guidelines 2080'],
-      confidenceScore: 0.96,
-      category: 'Corporate Law',
-      timestamp: '2026-09-29T16:00:00.000Z',
-    },
-  ],
+  appointments: [],
+  documents: [],
+  aiQueries: [],
 };
 
 class Database {
@@ -374,6 +248,10 @@ class Database {
     return this.data.lawyers.find((l) => l.id === id);
   }
 
+  findLawyerByUserId(userId: string): LawyerRecord | undefined {
+    return this.data.lawyers.find((l) => l.userId === userId || l.id === userId);
+  }
+
   createLawyer(lawyer: LawyerRecord): LawyerRecord {
     this.data.lawyers.push(lawyer);
     this.persist();
@@ -386,13 +264,39 @@ class Database {
   }
 
   findAppointmentsByUserId(userId: string): AppointmentRecord[] {
-    return this.data.appointments.filter((a) => a.clientId === userId || a.lawyerId === userId);
+    const lawyer = this.findLawyerByUserId(userId);
+    const lawyerId = lawyer?.id;
+    return this.data.appointments.filter(
+      (a) => a.clientId === userId || a.lawyerId === userId || (lawyerId && a.lawyerId === lawyerId)
+    );
   }
 
   createAppointment(apt: AppointmentRecord): AppointmentRecord {
     this.data.appointments.unshift(apt);
     this.persist();
     return apt;
+  }
+
+  findAppointmentById(id: string): AppointmentRecord | undefined {
+    return this.data.appointments.find((a) => a.id === id);
+  }
+
+  updateAppointment(id: string, updates: Partial<AppointmentRecord>): AppointmentRecord | undefined {
+    const idx = this.data.appointments.findIndex((a) => a.id === id);
+    if (idx === -1) return undefined;
+    this.data.appointments[idx] = { ...this.data.appointments[idx], ...updates };
+    this.persist();
+    return this.data.appointments[idx];
+  }
+
+  deleteAppointment(id: string): boolean {
+    const prevLen = this.data.appointments.length;
+    this.data.appointments = this.data.appointments.filter((a) => a.id !== id);
+    if (this.data.appointments.length !== prevLen) {
+      this.persist();
+      return true;
+    }
+    return false;
   }
 
   // Documents

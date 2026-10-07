@@ -22,6 +22,7 @@ import {
   CheckCircle2,
   Share2,
 } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { typography } from '../theme/typography';
 import { TimedDialog } from '../components/TimedDialog';
@@ -41,59 +42,40 @@ interface DocItem {
 
 const INITIAL_DOCS: DocItem[] = [
   {
-    id: 'doc_1',
-    title: 'Property Deed Contract (Lalpurja Registration)',
-    titleNepali: 'जग्गाधनी प्रमाण पुर्जा (लालपुर्जा लिखत)',
+    id: 'doc_01',
+    title: 'Standard Tenancy Agreement',
+    titleNepali: 'घर बहाल सम्झौता पत्र',
     category: 'Contracts',
-    size: '2.4 MB',
-    updatedAt: 'Sep 15, 2026',
-    status: 'Verified',
-    snippet: 'Official sale contract and conveyance deed for land parcel registered at Malpot Karyalaya, Kathmandu under Section 421 of Muluki Civil Code.',
-  },
-  {
-    id: 'doc_2',
-    title: 'Citizenship Identity Copy (Verified notarized)',
-    titleNepali: 'नेपाली नागरिकता प्रमाणपत्र प्रमाणित प्रतिलिपि',
-    category: 'Identity',
-    size: '1.1 MB',
-    updatedAt: 'Aug 28, 2026',
-    status: 'Encrypted',
-    snippet: 'Notarized scan of citizenship issued by District Administration Office, Kathmandu with 256-bit biometric vault encryption.',
-  },
-  {
-    id: 'doc_3',
-    title: 'Commercial Lease Agreement draft v2',
-    titleNepali: 'व्यापारिक बहाल सम्झौता मस्यौदा',
-    category: 'Contracts',
-    size: '850 KB',
-    updatedAt: 'Sep 18, 2026',
-    status: 'Draft',
-    snippet: 'Tenancy terms, dispute resolution clause, advance security deposit, and arbitration provisions for commercial premises.',
-  },
-  {
-    id: 'doc_4',
-    title: 'Tax Exemption Filing Affidavit 2082/83',
-    titleNepali: 'कर छुट निवेदन शपथपत्र',
-    category: 'Tax Docs',
-    size: '3.2 MB',
-    updatedAt: 'Jul 10, 2026',
-    status: 'Verified',
-    snippet: 'Inland Revenue Department (IRD) sworn declaration on deductible expenses and PAN clearance certificate.',
-  },
-  {
-    id: 'doc_5',
-    title: 'District Court Power of Attorney (Warisnama)',
-    titleNepali: 'जिल्ला अदालत अधिकृत वारिसनामा',
-    category: 'Court Forms',
     size: '1.8 MB',
-    updatedAt: 'Sep 02, 2026',
+    updatedAt: '2 days ago',
     status: 'Verified',
-    snippet: 'Special judicial Warisnama authorizing advocate representation under National Civil Procedure Code 2074.',
+    snippet: 'Residential and commercial lease agreement drafted in accordance with Chapter 9 of Muluki Civil Code 2074.',
+  },
+  {
+    id: 'doc_02',
+    title: 'General Power of Attorney',
+    titleNepali: 'सामान्य वारिसनामा लिखत',
+    category: 'Court Forms',
+    size: '2.4 MB',
+    updatedAt: 'Oct 04, 2026',
+    status: 'Encrypted',
+    snippet: 'Authenticated power of attorney authorized for District Court appearance and Land Revenue Office (मालपोत) filings.',
+  },
+  {
+    id: 'doc_03',
+    title: 'Verified Citizenship Certificate',
+    titleNepali: 'प्रमाणित नेपाली नागरिकता प्रमाणपत्र',
+    category: 'Identity',
+    size: '950 KB',
+    updatedAt: 'Verified',
+    status: 'Verified',
+    snippet: 'Encrypted digital e-KYC copy of Government of Nepal citizenship card with verified biometric hash.',
   },
 ];
 
 export const DocumentsScreen: React.FC = () => {
   const { theme } = useTheme();
+  const insets = useSafeAreaInsets();
   const [docs, setDocs] = useState<DocItem[]>(INITIAL_DOCS);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -118,7 +100,7 @@ export const DocumentsScreen: React.FC = () => {
     const fetchDocs = async () => {
       try {
         const res = await apiClient.get('/documents');
-        if (res.data?.success && Array.isArray(res.data.data)) {
+        if (res.data?.success && Array.isArray(res.data.data) && res.data.data.length > 0) {
           const mapped = res.data.data.map((d: any) => ({
             id: d.id,
             title: d.title,
@@ -132,7 +114,7 @@ export const DocumentsScreen: React.FC = () => {
           setDocs(mapped);
         }
       } catch (e) {
-        // Fallback to initial docs
+        // keep INITIAL_DOCS
       }
     };
     fetchDocs();
@@ -194,12 +176,21 @@ export const DocumentsScreen: React.FC = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingTop: Math.max(insets.top, 24) + 10,
+            paddingBottom: Math.max(insets.bottom + 90, 120),
+          },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header */}
         <View style={styles.header}>
-          <View>
+          <View style={{ flex: 1, marginRight: 10 }}>
             <Text style={[styles.title, { color: theme.textPrimary }]}>Legal Vault</Text>
-            <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+            <Text style={[styles.subtitle, { color: theme.textSecondary }]} numberOfLines={1}>
               Secure encrypted legal records & notarized files
             </Text>
           </View>
@@ -208,8 +199,8 @@ export const DocumentsScreen: React.FC = () => {
             onPress={() => setUploadVisible(true)}
             style={[styles.uploadBtn, { backgroundColor: theme.primary }]}
           >
-            <Plus size={16} color={theme.textInverse} style={{ marginRight: 4 }} />
-            <Text style={[styles.uploadBtnText, { color: theme.textInverse }]}>Add Document</Text>
+            <Plus size={15} color={theme.textInverse} style={{ marginRight: 4 }} />
+            <Text style={[styles.uploadBtnText, { color: theme.textInverse }]}>Add Doc</Text>
           </TouchableOpacity>
         </View>
 
@@ -279,83 +270,103 @@ export const DocumentsScreen: React.FC = () => {
         </ScrollView>
 
         {/* Document List */}
-        {filteredDocs.map((doc, idx) => (
-          <PlayfulCard key={doc.id} delay={idx * 60}>
-            <View
-              style={[
-                styles.docCard,
-                { backgroundColor: theme.cardBackground, borderColor: theme.cardBorder },
-              ]}
-            >
-              <View style={styles.docLeft}>
-                <View style={[styles.fileIconWrapper, { backgroundColor: theme.toggleBg }]}>
-                  <FileText size={20} color={theme.textPrimary} />
-                </View>
-                <View style={styles.docInfo}>
-                  <Text style={[styles.docTitle, { color: theme.textPrimary }]} numberOfLines={1}>
-                    {doc.title}
-                  </Text>
-                  {doc.titleNepali ? (
-                    <Text style={[styles.docNepali, { color: theme.textSecondary }]} numberOfLines={1}>
-                      {doc.titleNepali}
+        {filteredDocs.length === 0 ? (
+          <View
+            style={[
+              styles.emptyContainer,
+              {
+                backgroundColor: theme.cardBackground,
+                borderColor: theme.cardBorder,
+              },
+            ]}
+          >
+            <Folder size={40} color={theme.textMuted} style={{ marginBottom: 10 }} />
+            <Text style={[styles.emptyTitle, { color: theme.textPrimary }]}>No Legal Documents</Text>
+            <Text style={[styles.emptySubtitle, { color: theme.textSecondary }]}>
+              {searchQuery
+                ? 'No documents found matching your filter.'
+                : 'Your Legal Vault is currently empty. Tap the "+ New" button to securely upload contracts, deeds, or court filings.'}
+            </Text>
+          </View>
+        ) : (
+          filteredDocs.map((doc, idx) => (
+            <PlayfulCard key={doc.id} delay={idx * 60}>
+              <View
+                style={[
+                  styles.docCard,
+                  { backgroundColor: theme.cardBackground, borderColor: theme.cardBorder },
+                ]}
+              >
+                <View style={styles.docLeft}>
+                  <View style={[styles.fileIconWrapper, { backgroundColor: theme.toggleBg }]}>
+                    <FileText size={20} color={theme.textPrimary} />
+                  </View>
+                  <View style={styles.docInfo}>
+                    <Text style={[styles.docTitle, { color: theme.textPrimary }]} numberOfLines={1}>
+                      {doc.title}
                     </Text>
-                  ) : null}
-                  <View style={styles.docMetaRow}>
-                    <Text style={[styles.docMetaText, { color: theme.textMuted }]}>
-                      {doc.category} • {doc.size} • {doc.updatedAt}
-                    </Text>
-                    <View
-                      style={[
-                        styles.statusBadge,
-                        {
-                          backgroundColor:
-                            doc.status === 'Verified'
-                              ? '#10B98115'
-                              : doc.status === 'Encrypted'
-                              ? '#3B82F615'
-                              : '#F59E0B15',
-                        },
-                      ]}
-                    >
-                      <Text
+                    {doc.titleNepali ? (
+                      <Text style={[styles.docNepali, { color: theme.textSecondary }]} numberOfLines={1}>
+                        {doc.titleNepali}
+                      </Text>
+                    ) : null}
+                    <View style={styles.docMetaRow}>
+                      <Text style={[styles.docMetaText, { color: theme.textMuted }]}>
+                        {doc.category} • {doc.size} • {doc.updatedAt}
+                      </Text>
+                      <View
                         style={[
-                          styles.statusText,
+                          styles.statusBadge,
                           {
-                            color:
+                            backgroundColor:
                               doc.status === 'Verified'
+                                ? '#10B98115'
+                                : doc.status === 'Encrypted'
+                                ? '#3B82F615'
+                                : '#F59E0B15',
+                          },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.statusText,
+                            {
+                              color:
+                                doc.status === 'Verified'
                                 ? '#10B981'
                                 : doc.status === 'Encrypted'
                                 ? '#3B82F6'
                                 : '#F59E0B',
-                          },
-                        ]}
-                      >
-                        {doc.status}
-                      </Text>
+                            },
+                          ]}
+                        >
+                          {doc.status}
+                        </Text>
+                      </View>
                     </View>
                   </View>
                 </View>
-              </View>
 
-              <View style={styles.docRight}>
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={() => handleOpenPreview(doc)}
-                  style={[styles.iconBtn, { backgroundColor: theme.inputBg }]}
-                >
-                  <Eye size={15} color={theme.textPrimary} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={() => handleDownload(doc)}
-                  style={[styles.iconBtn, { backgroundColor: theme.inputBg, marginLeft: 6 }]}
-                >
-                  <Download size={15} color={theme.textPrimary} />
-                </TouchableOpacity>
+                <View style={styles.docRight}>
+                  <TouchableOpacity
+                    activeOpacity={0.7}
+                    onPress={() => handleOpenPreview(doc)}
+                    style={[styles.iconBtn, { backgroundColor: theme.inputBg }]}
+                  >
+                    <Eye size={15} color={theme.textPrimary} />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    activeOpacity={0.7}
+                    onPress={() => handleDownload(doc)}
+                    style={[styles.iconBtn, { backgroundColor: theme.inputBg, marginLeft: 6 }]}
+                  >
+                    <Download size={15} color={theme.textPrimary} />
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          </PlayfulCard>
-        ))}
+            </PlayfulCard>
+          ))
+        )}
       </ScrollView>
 
       {/* Upload Document Modal */}
@@ -441,7 +452,7 @@ export const DocumentsScreen: React.FC = () => {
                 onPress={handleCreateDocument}
                 style={[styles.modalSubmitBtn, { backgroundColor: theme.primary }]}
               >
-                <Text style={styles.modalSubmitText}>Save to Vault</Text>
+                <Text style={[styles.modalSubmitText, { color: theme.textInverse }]}>Save to Vault</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -514,8 +525,8 @@ export const DocumentsScreen: React.FC = () => {
                     }}
                     style={[styles.modalSubmitBtn, { backgroundColor: theme.primary }]}
                   >
-                    <Download size={15} color="#FFFFFF" style={{ marginRight: 6 }} />
-                    <Text style={styles.modalSubmitText}>Download PDF</Text>
+                    <Download size={15} color={theme.textInverse} style={{ marginRight: 6 }} />
+                    <Text style={[styles.modalSubmitText, { color: theme.textInverse }]}>Download PDF</Text>
                   </TouchableOpacity>
                 </View>
               </>
@@ -821,5 +832,26 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     borderWidth: 1,
+  },
+  emptyContainer: {
+    padding: 32,
+    borderRadius: 20,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 6,
+    fontFamily: typography.semiBold,
+  },
+  emptySubtitle: {
+    fontSize: 13,
+    textAlign: 'center',
+    lineHeight: 18,
+    fontFamily: typography.regular,
   },
 });

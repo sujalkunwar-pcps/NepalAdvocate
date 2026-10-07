@@ -34,7 +34,7 @@ export interface AppointmentData {
   specialization: string;
   date: string;
   timeSlot: string;
-  status: 'UPCOMING' | 'COMPLETED' | 'CANCELLED';
+  status: 'UPCOMING' | 'COMPLETED' | 'CANCELLED' | 'CONFIRMED';
   fee: number;
   notes?: string;
 }

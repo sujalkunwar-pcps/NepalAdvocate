@@ -20,7 +20,22 @@ const generateToken = (user: UserRecord): string => {
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { email, password, firstName, lastName, role, phone, acceptedTerms, acceptedPrivacy } = req.body;
+    const {
+      email,
+      password,
+      firstName,
+      lastName,
+      role,
+      phone,
+      acceptedTerms,
+      acceptedPrivacy,
+      barLicenseNumber,
+      specialization,
+      experience,
+      hourlyRate,
+      officeLocation,
+      bio,
+    } = req.body;
 
     if (!email || !password || !firstName || !lastName) {
       return res.status(400).json({
@@ -36,6 +51,16 @@ export const register = async (req: Request, res: Response) => {
       });
     }
 
+    const assignedRole = role === 'LAWYER' ? 'LAWYER' : 'CLIENT';
+
+    // Verify license number if registering as a lawyer
+    if (assignedRole === 'LAWYER' && (!barLicenseNumber || !barLicenseNumber.trim())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nepal Bar Council License Number is required to register as an Advocate / Lawyer.',
+      });
+    }
+
     const existingUser = db.findUserByEmail(email);
     if (existingUser) {
       return res.status(409).json({
@@ -45,7 +70,6 @@ export const register = async (req: Request, res: Response) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const assignedRole = role === 'LAWYER' ? 'LAWYER' : 'CLIENT';
 
     const newUser: UserRecord = {
       id: `usr_${Date.now()}`,
@@ -62,21 +86,23 @@ export const register = async (req: Request, res: Response) => {
 
     db.createUser(newUser);
 
-    // If registered as lawyer, auto-seed a lawyer profile
+    // If registered as lawyer, create complete lawyer profile
+    let lawyerProfile = null;
     if (assignedRole === 'LAWYER') {
-      db.createLawyer({
+      lawyerProfile = db.createLawyer({
         id: `law_${Date.now()}`,
         userId: newUser.id,
         name: `Adv. ${newUser.firstName} ${newUser.lastName}`,
-        specialization: 'Civil & Commercial Law',
-        barNumber: `NBA-${Math.floor(1000 + Math.random() * 9000)}`,
+        specialization: specialization || 'Corporate & Civil Law',
+        barNumber: barLicenseNumber ? barLicenseNumber.trim() : `NBA-${Math.floor(1000 + Math.random() * 9000)}`,
+        barLicenseNumber: barLicenseNumber ? barLicenseNumber.trim() : undefined,
         rating: 5.0,
-        experience: 1,
-        hourlyRate: 2000,
-        officeLocation: 'Kathmandu, Nepal',
+        experience: experience ? Number(experience) : 1,
+        hourlyRate: hourlyRate ? Number(hourlyRate) : 2500,
+        officeLocation: officeLocation || 'Kathmandu, Nepal',
         isVerified: true,
         image: newUser.profilePicture || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400',
-        bio: 'Licensed legal advocate registered with the Nepal Bar Council.',
+        bio: bio || 'Licensed legal advocate registered with the Nepal Bar Council.',
         email: newUser.email,
         phone: newUser.phone,
       });
@@ -90,7 +116,10 @@ export const register = async (req: Request, res: Response) => {
       message: 'Account registered successfully.',
       data: {
         token,
-        user: sanitizedUser,
+        user: {
+          ...sanitizedUser,
+          lawyerProfile,
+        },
       },
     });
   } catch (error: any) {
@@ -130,13 +159,17 @@ export const login = async (req: Request, res: Response) => {
 
     const token = generateToken(user);
     const { password: _, ...sanitizedUser } = user;
+    const lawyerProfile = user.role === 'LAWYER' ? db.findLawyerByUserId(user.id) : null;
 
     return res.json({
       success: true,
       message: 'Login successful.',
       data: {
         token,
-        user: sanitizedUser,
+        user: {
+          ...sanitizedUser,
+          lawyerProfile,
+        },
       },
     });
   } catch (error: any) {
@@ -149,12 +182,25 @@ export const login = async (req: Request, res: Response) => {
 
 export const googleAuth = async (req: Request, res: Response) => {
   try {
-    const { credential, email, name, role, picture } = req.body;
+    const {
+      credential,
+      email,
+      name,
+      role,
+      picture,
+      barLicenseNumber,
+      specialization,
+      experience,
+      hourlyRate,
+      officeLocation,
+      bio,
+    } = req.body;
 
     const payload = credential || { email, name, picture };
     const googleProfile = await GoogleAuthService.verifyGoogleToken(payload);
 
     let user = db.findUserByEmail(googleProfile.email);
+    let lawyerProfile = null;
 
     if (!user) {
       // Auto-register new user from Google
@@ -173,27 +219,69 @@ export const googleAuth = async (req: Request, res: Response) => {
       db.createUser(user);
 
       if (assignedRole === 'LAWYER') {
-        db.createLawyer({
-          id: `law_${Date.now()}`,
-          userId: user.id,
-          name: `Adv. ${user.firstName} ${user.lastName}`,
-          specialization: 'Corporate & Civil Law',
-          barNumber: `NBA-${Math.floor(1000 + Math.random() * 9000)}`,
-          rating: 5.0,
-          experience: 1,
-          hourlyRate: 2500,
-          officeLocation: 'Kathmandu, Nepal',
-          isVerified: true,
-          image: user.profilePicture || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400',
-          email: user.email,
+        // Check if a seeded lawyer with this email already exists
+        const existingLawyer = db.lawyers.find((l) => l.email?.toLowerCase() === user!.email.toLowerCase());
+        if (existingLawyer) {
+          existingLawyer.userId = user!.id;
+          lawyerProfile = existingLawyer;
+        } else {
+          lawyerProfile = db.createLawyer({
+            id: `law_${Date.now()}`,
+            userId: user!.id,
+            name: `Adv. ${user!.firstName} ${user!.lastName}`,
+            specialization: specialization || 'Corporate & Civil Law',
+            barNumber: barLicenseNumber ? barLicenseNumber.trim() : `NBA-${Math.floor(1000 + Math.random() * 9000)}`,
+            barLicenseNumber: barLicenseNumber ? barLicenseNumber.trim() : undefined,
+            rating: 5.0,
+            experience: experience ? Number(experience) : 1,
+            hourlyRate: hourlyRate ? Number(hourlyRate) : 2500,
+            officeLocation: officeLocation || 'Kathmandu, Nepal',
+            isVerified: true,
+            image: user!.profilePicture || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400',
+            bio: bio || 'Licensed legal advocate registered with Nepal Bar Council.',
+            email: user!.email,
+          });
+        }
+      }
+    } else {
+      if (!user.googleId) {
+        // Link Google Account to existing user
+        db.updateUser(user.id, {
+          googleId: googleProfile.googleId,
+          profilePicture: user.profilePicture || googleProfile.picture,
         });
       }
-    } else if (!user.googleId) {
-      // Link Google Account to existing user
-      db.updateUser(user.id, {
-        googleId: googleProfile.googleId,
-        profilePicture: user.profilePicture || googleProfile.picture,
-      });
+      if (role === 'LAWYER' && user.role !== 'LAWYER') {
+        user = db.updateUser(user.id, { role: 'LAWYER' }) || user;
+      }
+      if (user.role === 'LAWYER') {
+        lawyerProfile = db.findLawyerByUserId(user.id);
+        if (!lawyerProfile) {
+          const userEmail = user.email.toLowerCase();
+          const existingLawyer = db.lawyers.find((l) => l.email?.toLowerCase() === userEmail);
+          if (existingLawyer) {
+            existingLawyer.userId = user.id;
+            lawyerProfile = existingLawyer;
+          } else {
+            lawyerProfile = db.createLawyer({
+              id: `law_${Date.now()}`,
+              userId: user.id,
+              name: `Adv. ${user.firstName} ${user.lastName}`,
+              specialization: specialization || 'Corporate & Civil Law',
+              barNumber: barLicenseNumber ? barLicenseNumber.trim() : `NBA-${Math.floor(1000 + Math.random() * 9000)}`,
+              barLicenseNumber: barLicenseNumber ? barLicenseNumber.trim() : undefined,
+              rating: 5.0,
+              experience: experience ? Number(experience) : 1,
+              hourlyRate: hourlyRate ? Number(hourlyRate) : 2500,
+              officeLocation: officeLocation || 'Kathmandu, Nepal',
+              isVerified: true,
+              image: user.profilePicture || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400',
+              bio: bio || 'Licensed legal advocate registered with Nepal Bar Council.',
+              email: user.email,
+            });
+          }
+        }
+      }
     }
 
     const token = generateToken(user);
@@ -204,7 +292,10 @@ export const googleAuth = async (req: Request, res: Response) => {
       message: 'Google authentication successful.',
       data: {
         token,
-        user: sanitizedUser,
+        user: {
+          ...sanitizedUser,
+          lawyerProfile,
+        },
       },
     });
   } catch (error: any) {
@@ -221,10 +312,14 @@ export const getMe = async (req: AuthenticatedRequest, res: Response) => {
       return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
     const { password: _, ...sanitizedUser } = req.user;
+    const lawyerProfile = req.user.role === 'LAWYER' ? db.findLawyerByUserId(req.user.id) : undefined;
     return res.json({
       success: true,
       data: {
-        user: sanitizedUser,
+        user: {
+          ...sanitizedUser,
+          lawyerProfile,
+        },
       },
     });
   } catch (error: any) {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,10 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from 'react-native';
 import { Send, Bot, User, Sparkles, Shield, AlertCircle, RefreshCw, BookOpen, UserCheck } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { typography } from '../theme/typography';
 import { apiClient } from '../services/api';
@@ -40,9 +42,28 @@ const SUGGESTED_QUESTIONS = [
 
 export const AiChatScreen: React.FC = () => {
   const { theme } = useTheme();
+  const insets = useSafeAreaInsets();
   const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, () => {
+      setIsKeyboardVisible(true);
+      setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => setIsKeyboardVisible(false));
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   const handleSend = async (textToSend?: string) => {
     const query = textToSend || inputText;
@@ -115,7 +136,11 @@ export const AiChatScreen: React.FC = () => {
       <View
         style={[
           styles.header,
-          { backgroundColor: theme.cardBackground, borderBottomColor: theme.cardBorder },
+          {
+            backgroundColor: theme.cardBackground,
+            borderBottomColor: theme.cardBorder,
+            paddingTop: Math.max(insets.top, Platform.OS === 'ios' ? 44 : 20) + 8,
+          },
         ]}
       >
         <View style={styles.headerLeft}>
@@ -139,8 +164,13 @@ export const AiChatScreen: React.FC = () => {
 
       {/* Messages */}
       <ScrollView
-        contentContainerStyle={styles.chatScroll}
+        ref={scrollViewRef}
+        contentContainerStyle={[
+          styles.chatScroll,
+          { paddingBottom: isKeyboardVisible ? 100 : Math.max(insets.bottom + 160, 175) },
+        ]}
         showsVerticalScrollIndicator={false}
+        onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
       >
         {messages.map((msg) => {
           const isUser = msg.sender === 'user';
@@ -182,7 +212,7 @@ export const AiChatScreen: React.FC = () => {
                 <Text
                   style={[
                     styles.timeText,
-                    { color: isUser ? 'rgba(255,255,255,0.7)' : theme.textMuted },
+                    { color: isUser ? theme.textInverse + 'AA' : theme.textMuted },
                   ]}
                 >
                   {msg.time}
@@ -243,7 +273,14 @@ export const AiChatScreen: React.FC = () => {
       <View
         style={[
           styles.inputContainer,
-          { backgroundColor: theme.cardBackground, borderTopColor: theme.cardBorder },
+          {
+            backgroundColor: theme.cardBackground,
+            borderTopColor: theme.cardBorder,
+            bottom: isKeyboardVisible
+              ? (Platform.OS === 'ios' ? insets.bottom : 8)
+              : Math.max(insets.bottom + 76, 96),
+            paddingBottom: isKeyboardVisible ? (Platform.OS === 'ios' ? 14 : 10) : 10,
+          },
         ]}
       >
         <TextInput
@@ -397,15 +434,19 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     position: 'absolute',
-    bottom: 0,
     left: 0,
     right: 0,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingTop: 10,
-    paddingBottom: Platform.OS === 'ios' ? 30 : 14,
     borderTopWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 6,
+    zIndex: 100,
   },
   textInput: {
     flex: 1,

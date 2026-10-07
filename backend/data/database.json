@@ -1,79 +1,43 @@
 {
   "users": [
     {
-      "id": "usr_101",
-      "email": "client@nepaladvocate.com",
-      "password": "$2a$10$FlYQ0it5W.hTUz3xTkt6fu6zakNjNy7cbujkCPK5mZOVjwllzvYG.",
-      "firstName": "Aarav",
-      "lastName": "Sharma",
-      "role": "CLIENT",
-      "phone": "+977 9841234567",
-      "profilePicture": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
-      "isActive": true,
-      "createdAt": "2025-01-15T08:00:00.000Z"
-    },
-    {
-      "id": "usr_102",
+      "id": "usr_1791370146153",
       "email": "bikram.thapa@nepaladvocate.com",
-      "password": "$2a$10$FlYQ0it5W.hTUz3xTkt6fu6zakNjNy7cbujkCPK5mZOVjwllzvYG.",
-      "firstName": "Bikram",
-      "lastName": "Thapa",
+      "firstName": "Adv.",
+      "lastName": "Bikram Thapa",
       "role": "LAWYER",
-      "phone": "+977 9851098765",
-      "profilePicture": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400",
+      "googleId": "g_1791370146153",
+      "profilePicture": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=400",
       "isActive": true,
-      "createdAt": "2025-01-20T08:00:00.000Z"
+      "createdAt": "2026-10-07T10:49:06.153Z"
     },
     {
-      "id": "usr_103",
-      "email": "sujalkunwar@nepaladvocate.com",
-      "password": "$2a$10$FlYQ0it5W.hTUz3xTkt6fu6zakNjNy7cbujkCPK5mZOVjwllzvYG.",
+      "id": "usr_1791375200198",
+      "email": "sujalkunwar22@gmail.com",
       "firstName": "Sujal",
       "lastName": "Kunwar",
-      "role": "CLIENT",
-      "phone": "+977 9801234567",
+      "role": "LAWYER",
+      "googleId": "g_1791375200198",
       "profilePicture": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=400",
       "isActive": true,
-      "createdAt": "2025-02-01T08:00:00.000Z"
+      "createdAt": "2026-10-07T12:13:20.198Z"
     },
     {
-      "id": "usr_1790786326407",
-      "email": "test_1790786326333@example.com",
-      "password": "$2a$10$TmcCH7jNSl3DVjrq9bP0.uDzsjZbmCv3MI1J9Jw7blSGuG7aAWN5G",
-      "firstName": "Ramesh",
-      "lastName": "Adhikari",
-      "role": "CLIENT",
-      "profilePicture": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
+      "id": "usr_1791376080241",
+      "email": "sujal.kunwar@patancollege.edu.np",
+      "firstName": "Sujal",
+      "lastName": "Kunwar",
+      "role": "LAWYER",
+      "googleId": "g_1791376080241",
+      "profilePicture": "https://lh3.googleusercontent.com/a/ACg8ocKYaFuFXqn2HOjhPxxAI78qx2XYcv8ni6Syo_hqc0_PTB9kcg=s96-c",
       "isActive": true,
-      "createdAt": "2026-09-30T16:38:46.407Z"
-    },
-    {
-      "id": "usr_1790786326479",
-      "email": "sujal.google@gmail.com",
-      "firstName": "Google",
-      "lastName": "User",
-      "role": "CLIENT",
-      "googleId": "g_1790786326479",
-      "profilePicture": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=400",
-      "isActive": true,
-      "createdAt": "2026-09-30T16:38:46.479Z"
-    },
-    {
-      "id": "usr_1790786989736",
-      "email": "test_1790786989660@example.com",
-      "password": "$2a$10$5lTAMVVcoFekkn7e21FCDuo6/M1nsqzWA38CxtEfJoPJRGTiJdk7S",
-      "firstName": "Ramesh",
-      "lastName": "Adhikari",
-      "role": "CLIENT",
-      "profilePicture": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
-      "isActive": true,
-      "createdAt": "2026-09-30T16:49:49.736Z"
+      "createdAt": "2026-10-07T12:28:00.241Z"
     }
   ],
   "lawyers": [
     {
       "id": "law_01",
-      "userId": "usr_102",
+      "userId": "usr_1791370146153",
       "name": "Adv. Bikram Thapa",
       "specialization": "Corporate & Tax Law",
       "barNumber": "NBA-5421",
@@ -144,126 +108,64 @@
       "isVerified": true,
       "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400",
       "bio": "Senior constitutional counsel for writ petitions, fundamental rights enforcement, and public interest litigation (PIL).",
-      "phone": "+977 9851044556",
+      "phone": "+977 9851098765",
       "email": "dipesh.regmi@nepaladvocate.com"
+    },
+    {
+      "id": "law_1791375891538",
+      "userId": "usr_1791375200198",
+      "name": "Adv. Sujal Kunwar",
+      "specialization": "Corporate & Civil Law",
+      "barNumber": "NBA-9400",
+      "rating": 5,
+      "experience": 1,
+      "hourlyRate": 2500,
+      "officeLocation": "Kathmandu, Nepal",
+      "isVerified": true,
+      "image": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=400",
+      "bio": "Licensed legal advocate registered with Nepal Bar Council.",
+      "email": "sujalkunwar22@gmail.com"
+    },
+    {
+      "id": "law_1791376080242",
+      "userId": "usr_1791376080241",
+      "name": "Adv. Sujal Kunwar",
+      "specialization": "Family & Civil Matters",
+      "barNumber": "SSS 2034",
+      "barLicenseNumber": "SSS 2034",
+      "rating": 5,
+      "experience": 5,
+      "hourlyRate": 2500,
+      "officeLocation": "Anamnagar, Kathmandu",
+      "isVerified": true,
+      "image": "https://lh3.googleusercontent.com/a/ACg8ocKYaFuFXqn2HOjhPxxAI78qx2XYcv8ni6Syo_hqc0_PTB9kcg=s96-c",
+      "bio": "iuusrbgjbaguihvsdvb l\\hsr",
+      "email": "sujal.kunwar@patancollege.edu.np"
     }
   ],
   "appointments": [
     {
-      "id": "apt_1790786989818",
-      "clientId": "usr_101",
-      "clientName": "Aarav Sharma",
+      "id": "apt_1791370334340",
+      "clientId": "usr_1791370146153",
+      "clientName": "Adv. Bikram Thapa",
       "lawyerId": "law_01",
       "lawyerName": "Adv. Bikram Thapa",
       "specialization": "Corporate & Tax Law",
-      "date": "Oct 12, 2026",
-      "timeSlot": "11:00 AM - 12:00 PM",
+      "date": "Oct 07, 2026",
+      "timeSlot": "03:30 PM - 04:30 PM",
       "status": "UPCOMING",
       "fee": 2500,
-      "notes": "Reviewing tenancy contract",
+      "notes": "General legal consultation",
       "paymentMethod": "ESEWA",
       "paymentStatus": "PAID",
-      "createdAt": "2026-09-30T16:49:49.818Z"
-    },
-    {
-      "id": "apt_1790786326494",
-      "clientId": "usr_101",
-      "clientName": "Aarav Sharma",
-      "lawyerId": "law_01",
-      "lawyerName": "Adv. Bikram Thapa",
-      "specialization": "Corporate & Tax Law",
-      "date": "Oct 12, 2026",
-      "timeSlot": "11:00 AM - 12:00 PM",
-      "status": "UPCOMING",
-      "fee": 2500,
-      "notes": "Reviewing tenancy contract",
-      "paymentMethod": "ESEWA",
-      "paymentStatus": "PAID",
-      "createdAt": "2026-09-30T16:38:46.494Z"
-    },
-    {
-      "id": "apt_01",
-      "clientId": "usr_101",
-      "clientName": "Aarav Sharma",
-      "lawyerId": "law_01",
-      "lawyerName": "Adv. Bikram Thapa",
-      "specialization": "Corporate & Tax Law",
-      "date": "Oct 05, 2026",
-      "timeSlot": "10:30 AM - 11:30 AM",
-      "status": "UPCOMING",
-      "fee": 2500,
-      "notes": "Consultation regarding business registration and IP filing in Nepal.",
-      "paymentMethod": "ESEWA",
-      "paymentStatus": "PAID",
-      "createdAt": "2026-09-28T10:00:00.000Z"
-    },
-    {
-      "id": "apt_02",
-      "clientId": "usr_101",
-      "clientName": "Aarav Sharma",
-      "lawyerId": "law_02",
-      "lawyerName": "Adv. Sunita Shrestha",
-      "specialization": "Property & Civil Law",
-      "date": "Oct 08, 2026",
-      "timeSlot": "02:00 PM - 03:00 PM",
-      "status": "UPCOMING",
-      "fee": 3000,
-      "notes": "Land ownership deed verification and boundary dispute review.",
-      "paymentMethod": "KHALTI",
-      "paymentStatus": "PAID",
-      "createdAt": "2026-09-29T14:30:00.000Z"
+      "createdAt": "2026-10-07T10:52:14.340Z"
     }
   ],
-  "documents": [
-    {
-      "id": "doc_101",
-      "userId": "usr_101",
-      "title": "Commercial Lease Agreement 2026",
-      "titleNepali": "व्यापारिक भाडा सम्झौता २०८३",
-      "category": "Contracts",
-      "fileSize": "1.8 MB",
-      "status": "VERIFIED",
-      "updatedAt": "Sep 28, 2026",
-      "contentSnippet": "Standard registered lease between commercial landlord and lessee adhering to Chapter 9 of Muluki Civil Code 2074."
-    },
-    {
-      "id": "doc_102",
-      "userId": "usr_101",
-      "title": "Company Articles of Association (Draft)",
-      "titleNepali": "कम्पनी प्रबन्धपत्र तथा नियमावली मस्यौदा",
-      "category": "Contracts",
-      "fileSize": "850 KB",
-      "status": "DRAFT",
-      "updatedAt": "Sep 25, 2026",
-      "contentSnippet": "Drafted Memorandum & Articles of Association for private tech startup registering under Company Act 2063."
-    },
-    {
-      "id": "doc_103",
-      "userId": "usr_101",
-      "title": "Power of Attorney Deed (Warisnama)",
-      "titleNepali": "अधिकृत वारिसनामा लिखत",
-      "category": "Court Forms",
-      "fileSize": "2.4 MB",
-      "status": "VERIFIED",
-      "updatedAt": "Sep 20, 2026",
-      "contentSnippet": "Notarized Warisnama authorization for court proceedings in Kathmandu District Court under Muluki Civil Procedure Code."
-    },
-    {
-      "id": "doc_104",
-      "userId": "usr_101",
-      "title": "Land Ownership Certificate (Lalpurja Copy)",
-      "titleNepali": "जग्गाधनी प्रमाण पुर्जा (लालपुर्जा प्रतिलिपि)",
-      "category": "Identity",
-      "fileSize": "3.1 MB",
-      "status": "ENCRYPTED",
-      "updatedAt": "Sep 15, 2026",
-      "contentSnippet": "High-resolution scan of Lalpurja plot #402, Ward 4, Budhanilkantha, Kathmandu."
-    }
-  ],
+  "documents": [],
   "aiQueries": [
     {
-      "id": "ai_1790786989812",
-      "question": "How do I register a company in Nepal?",
+      "id": "ai_1791370352929",
+      "question": "How do I register a Private Limited company in Kathmandu?",
       "response": "Incorporation requires: 1) Online name reservation approval on the Office of Company Registrar (OCR) web portal. 2) Submission of notarized Memorandum of Association (MOA) and Articles of Association (AOA) drafted in accordance with standard formats. 3) Certified copies of promoter citizenships. 4) Issuance of Certificate of Incorporation, followed by Inland Revenue Department (IRD) PAN and local Ward business license.\n\n📚 Statutory Citation:\n• Companies Act 2063 (कम्पनी ऐन, २०६३) - Sections 3, 4, 5 & 12\n• Department of Industry & OCR Practice Directive 2080\n\n💡 Next Steps:\nYou can connect directly with verified advocates specializing in this domain on the Lawyers tab.\n\n⚠️ Legal Disclaimer: This AI-generated response is for informational purposes only and does not constitute formal legal counsel. For actionable legal advice, please consult a verified advocate.",
       "citations": [
         "Companies Act 2063 (कम्पनी ऐन, २०६३) - Sections 3, 4, 5 & 12",
@@ -271,32 +173,7 @@
       ],
       "confidenceScore": 0.94,
       "category": "Companies Act 2063 (कम्पनी ऐन, २०६३)",
-      "timestamp": "2026-09-30T16:49:49.812Z"
-    },
-    {
-      "id": "ai_1790786326484",
-      "question": "How do I register a company in Nepal?",
-      "response": "Incorporation requires: 1) Online name reservation approval on the Office of Company Registrar (OCR) web portal. 2) Submission of notarized Memorandum of Association (MOA) and Articles of Association (AOA) drafted in accordance with standard formats. 3) Certified copies of promoter citizenships. 4) Issuance of Certificate of Incorporation, followed by Inland Revenue Department (IRD) PAN and local Ward business license.\n\n📚 Statutory Citation:\n• Companies Act 2063 (कम्पनी ऐन, २०६३) - Sections 3, 4, 5 & 12\n• Department of Industry & OCR Practice Directive 2080\n\n💡 Next Steps:\nYou can connect directly with verified advocates specializing in this domain on the Lawyers tab.\n\n⚠️ Legal Disclaimer: This AI-generated response is for informational purposes only and does not constitute formal legal counsel. For actionable legal advice, please consult a verified advocate.",
-      "citations": [
-        "Companies Act 2063 (कम्पनी ऐन, २०६३) - Sections 3, 4, 5 & 12",
-        "Department of Industry & OCR Practice Directive 2080"
-      ],
-      "confidenceScore": 0.94,
-      "category": "Companies Act 2063 (कम्पनी ऐन, २०६३)",
-      "timestamp": "2026-09-30T16:38:46.484Z"
-    },
-    {
-      "id": "q_01",
-      "userId": "usr_101",
-      "question": "What are the legal requirements to register a Pvt Ltd company in Nepal?",
-      "response": "To incorporate a Private Limited company in Nepal under the Companies Act 2063: 1) Reserve proposed name at Office of Company Registrar (OCR). 2) Draft Memorandum of Association (MOA) and Articles of Association (AOA). 3) Submit founder citizenship documents and registered office address. 4) Obtain Certificate of Incorporation and register PAN with Inland Revenue Department.",
-      "citations": [
-        "Companies Act 2063 (Section 3, 4, 5)",
-        "Department of Industry Guidelines 2080"
-      ],
-      "confidenceScore": 0.96,
-      "category": "Corporate Law",
-      "timestamp": "2026-09-29T16:00:00.000Z"
+      "timestamp": "2026-10-07T10:52:32.929Z"
     }
   ]
 }

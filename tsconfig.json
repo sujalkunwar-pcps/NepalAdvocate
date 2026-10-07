@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["sourcecode/src/*"]
+    }
+  },
+  "include": [
+    "sourcecode/src/**/*",
+    "sourcecode/App.tsx",
+    "sourcecode/index.ts"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "sourcecode/dist",
+    "sourcecode/dist-ios",
+    "sourcecode/.expo",
+    "sourcecode/scripts"
+  ]
+}

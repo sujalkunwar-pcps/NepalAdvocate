@@ -9,6 +9,10 @@ import { DashboardScreen } from './src/screens/DashboardScreen';
 import { SplashScreen } from './src/screens/SplashScreen';
 import { MainTabNavigator } from './src/navigation/MainTabNavigator';
 import { View, StyleSheet, Platform } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
+
+// Complete any pending web auth sessions from OAuth redirects/popups
+WebBrowser.maybeCompleteAuthSession();
 
 // Web global CSS reset to eliminate horizontal scrolling & body margin offsets
 if (Platform.OS === 'web' && typeof document !== 'undefined') {

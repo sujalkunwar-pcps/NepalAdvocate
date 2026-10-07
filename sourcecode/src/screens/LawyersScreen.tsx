@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,11 +10,13 @@ import {
   Platform,
 } from 'react-native';
 import { Search, Filter, Star, MapPin, CheckCircle2, Shield, Phone, Calendar } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { typography } from '../theme/typography';
 import { TimedDialog } from '../components/TimedDialog';
 import { PlayfulCard } from '../components/PlayfulCard';
 import { BookAppointmentModal, LawyerInfo } from '../components/BookAppointmentModal';
+import { apiClient } from '../services/api';
 
 interface LawyerItem {
   id: string;
@@ -28,7 +30,7 @@ interface LawyerItem {
   image: string;
 }
 
-const MOCK_LAWYERS: LawyerItem[] = [
+const FALLBACK_LAWYERS: LawyerItem[] = [
   {
     id: 'law_01',
     name: 'Adv. Bikram Thapa',
@@ -77,15 +79,31 @@ const MOCK_LAWYERS: LawyerItem[] = [
 
 export const LawyersScreen: React.FC = () => {
   const { theme } = useTheme();
+  const insets = useSafeAreaInsets();
+  const [lawyers, setLawyers] = useState<LawyerItem[]>(FALLBACK_LAWYERS);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpec, setSelectedSpec] = useState('All');
   const [dialogVisible, setDialogVisible] = useState(false);
   const [selectedLawyerName, setSelectedLawyerName] = useState('');
   const [selectedLawyerForBooking, setSelectedLawyerForBooking] = useState<LawyerItem | null>(null);
 
+  useEffect(() => {
+    let isMounted = true;
+    apiClient.get('/lawyers')
+      .then((res) => {
+        if (isMounted && res.data?.success && Array.isArray(res.data.data) && res.data.data.length > 0) {
+          setLawyers(res.data.data);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const specializations = ['All', 'Corporate', 'Property', 'Criminal', 'Family', 'Tax'];
 
-  const filteredLawyers = MOCK_LAWYERS.filter((l) => {
+  const filteredLawyers = lawyers.filter((l) => {
     const matchesSearch =
       l.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       l.specialization.toLowerCase().includes(searchQuery.toLowerCase());
@@ -99,7 +117,16 @@ export const LawyersScreen: React.FC = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingTop: Math.max(insets.top, 24) + 10,
+            paddingBottom: Math.max(insets.bottom + 90, 120),
+          },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header */}
         <View style={styles.header}>
           <Text style={[styles.title, { color: theme.textPrimary }]}>Find Advocates</Text>
